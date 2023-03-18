@@ -5,6 +5,8 @@
 #ifndef STM32F_CLOCK_H
 #define STM32F_CLOCK_H
 
+#include "main.h"
+
 
 void sys_clock_init(void);
 
