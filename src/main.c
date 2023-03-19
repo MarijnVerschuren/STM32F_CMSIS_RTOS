@@ -41,7 +41,7 @@ int main(void) {
 	// set initial state of the pins
 	write_pin(LED_PIN, LED_GPIO_PORT, 1);  // led is active low
 
-	TIM_init(TIM2, 100000, 2000, 1);
+	TIM_init(TIM2, 100000, 1000, 1);
 	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
 	TIM_start(TIM2);
 
