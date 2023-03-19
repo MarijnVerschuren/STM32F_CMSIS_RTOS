@@ -11,11 +11,12 @@
 #define BTN_PIN 0
 #define BTN_GPIO_PORT GPIOA
 
+// HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz
 SYS_CLK_Config_TypeDef clock_config = {
-		16,
-		192,
+		15,
+		120,
 		PLL_P_DIV2,
-		4,
+		0,
 		PLL_SRC_HSE,
 		FLASH_LATENCY_3_CYCLES,
 		1,
@@ -48,7 +49,7 @@ extern void TIM2_IRQHandler(void) {
 }
 
 int main(void) {
-	sys_clock_init(clock_config);
+	sys_clock_init(&clock_config);
 
 	// initialize GPIO peripheral clock (on enabled ports)
 	enable_GPIO_port(LED_GPIO_PORT);
@@ -66,7 +67,7 @@ int main(void) {
 	// set initial state of the pins
 	write_pin(LED_PIN, LED_GPIO_PORT, 1);  // led is active low
 
-	TIM_init(TIM2, 100000, 1000, 1);
+	TIM_init(TIM2, 12500, 1000, 1);
 	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
 	TIM_start(TIM2);
 
