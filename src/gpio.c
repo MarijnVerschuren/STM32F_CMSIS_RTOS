@@ -36,7 +36,7 @@ void reset_pin_config(uint8_t pin, GPIO_TypeDef* port) {
 	port->PUPDR &= ~(0b11u << (pin << 1u));
 	port->OTYPER &= (0b1u << pin);
 }
-void config_pin(uint8_t pin, GPIO_TypeDef* port, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_Typedef out_type) {
+void config_pin(uint8_t pin, GPIO_TypeDef* port, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef out_type) {
 	reset_pin_config(pin, port);
 	port->MODER |= (mode << (pin << 1u));
 	port->OSPEEDR |= (speed << (pin << 1u));

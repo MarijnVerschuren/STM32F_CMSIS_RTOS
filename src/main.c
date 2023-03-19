@@ -11,6 +11,31 @@
 #define BTN_PIN 0
 #define BTN_GPIO_PORT GPIOA
 
+SYS_CLK_Config_TypeDef clock_config = {
+		16,
+		192,
+		PLL_P_DIV2,
+		4,
+		PLL_SRC_HSE,
+		FLASH_LATENCY_3_CYCLES,
+		1,
+		1,
+		1,
+		SYS_CLK_SRC_PLL,
+		AHB_CLK_NO_DIV,
+		APBx_CLK_DIV2,
+		APBx_CLK_NO_DIV,
+		0,  // disable
+		MCO1_CLK_SRC_HSI,
+		0,
+		MCOx_CLK_NO_DIV,
+		MCOx_CLK_NO_DIV,
+		MCO2_CLK_SRC_SYS_CLK,
+		12500UL,
+		1000UL,
+		SysTick_CTRL_ENABLE_Msk
+};
+
 
 extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
@@ -23,7 +48,7 @@ extern void TIM2_IRQHandler(void) {
 }
 
 int main(void) {
-	sys_clock_init();
+	sys_clock_init(clock_config);
 
 	// initialize GPIO peripheral clock (on enabled ports)
 	enable_GPIO_port(LED_GPIO_PORT);

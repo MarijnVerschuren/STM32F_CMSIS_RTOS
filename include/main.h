@@ -11,8 +11,4 @@
 #include "stm32f4xx.h"
 #endif
 
-#ifdef STM32F3xx
-#elif defined(STM32F4xx)
-#endif
-
 #endif //STM32F_MAIN_H

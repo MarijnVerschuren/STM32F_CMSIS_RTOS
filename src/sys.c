@@ -4,14 +4,8 @@
 #include "sys.h"
 
 
-/* M = 16
- * N = 192
- * P = 2 (0)
- * Q = 4
- * */
 
-
-void sys_clock_init(void) {
+void sys_clock_init(SYS_CLK_Config_TypeDef config) {
 	// HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz
 	RCC->PLLCFGR = (																								/*
 				PLL_M: division factor for the main PLL and audio PLL (PLLI2S) input clock. Info:
@@ -25,16 +19,21 @@ void sys_clock_init(void) {
 			((120 << RCC_PLLCFGR_PLLN_Pos) & RCC_PLLCFGR_PLLN_Msk)	|												/*
 				PLL_P: main PLL division factor for main system clock
 				PLL output clock frequency = VCO frequency / PLL_P:
-					00: PLLP = 2
-					01: PLLP = 4
-					10: PLLP = 6
-					11: PLLP = 8																					*/
+					00: PLL_P = 2
+					01: PLL_P = 4
+					10: PLL_P = 6
+					11: PLL_P = 8																					*/
 			((0 << RCC_PLLCFGR_PLLP_Pos) & RCC_PLLCFGR_PLLP_Msk)	|												/*
 				PLLSRC: PLL and PLLI2S clock source:
  					0: HSI
 					1: HSE																							*/
 			(1 * RCC_PLLCFGR_PLLSRC_HSE)							|												/*
- 				PLL_Q: main PLL division factor for USB OTG FS, SDIO and RNG clocks									*/
+ 				PLL_Q: main PLL division factor for USB OTG FS, SDIO and RNG clocks:
+ 					0000: ERROR
+ 					0001: ERROR
+ 					0010: divide PLL by 2
+ 					...
+ 					1111: divide PLL by 15																			*/
 			((0 << RCC_PLLCFGR_PLLQ_Pos) & RCC_PLLCFGR_PLLQ_Msk)
 	);
 
@@ -44,14 +43,13 @@ void sys_clock_init(void) {
 			RCC_CR_PLLON	/* switch PLL ON */
 	);
 
-
+	// TODO: RTC
 	//PWR->CR = PWR_CR_VOS_1 | PWR_CR_DBP; /*  Enable Backup Domain Access (leave VOS default)       */
 	//RCC->BDCR = (
 	//		RCC_BDCR_LSEON                   | /*  Switch HSE ON                                         */
 	//		RCC_BDCR_RTCSEL_0                | /*  LSE oscillator clock used as RTC clock                */
 	//		RCC_BDCR_RTCEN                     /*  RTC clock enable                                      */
 	//);
-
 
 	/* Relation between CPU clock frequency and flash memory read time.
 	To correctly read data from flash memory, the number of wait states (LATENCY) must be
@@ -61,23 +59,10 @@ void sys_clock_init(void) {
 	correspondence between wait states and CPU clock frequency is given in Table 6.
 	- when VOS[1:0] = 0x01, the maximum frequency of HCLK = 60 MHz.
 	- when VOS[1:0] = 0x10, the maximum frequency of HCLK = 84 MHz.
-
-	table 6. Number of wait states according to CPU clock (HCLK) frequency
-	===========================================================================================
-	wait states (WS)	|							HCLK (MHz)
-	(LATENCY)			|  Voltage range     Voltage range     Voltage range     Voltage range
-						|  2.7 V - 3.6 V     2.4 V - 2.7 V     2.1 V - 2.4 V     1.71 V - 2.1 V
-	===========================================================================================
-	0 WS (1 CPU cycle)    0 < HCLK ≤ 30     0 < HCLK ≤ 24     0 < HCLK ≤ 18     0 < HCLK ≤ 16
-	1 WS (2 CPU cycles)  30 < HCLK ≤ 60    24 < HCLK ≤ 48    18 < HCLK ≤ 36    16 < HCLK ≤ 32
-	2 WS (3 CPU cycles)  60 < HCLK ≤ 84    48 < HCLK ≤ 72    36 < HCLK ≤ 54    32 < HCLK ≤ 48
-	3 WS (4 CPU cycles)        -           72 < HCLK ≤ 84    54 < HCLK ≤ 72    48 < HCLK ≤ 64
-	4 WS (5 CPU cycles)        -                 -           72 < HCLK ≤ 84    64 < HCLK ≤ 80
-	5 WS (6 CPU cycles)        -                 -                 -           80 < HCLK ≤ 84
 	*/
 
 	FLASH->ACR = (																									/*
- 				LATENCY: flash read latency (look in table above for more info)										*/
+ 				LATENCY: flash read latency (see the table at the definition for ACR_LATENCY_TypeDef for more info)	*/
 			((2 << FLASH_ACR_LATENCY_Pos) & FLASH_ACR_LATENCY_7WS)	|
 			(1 * FLASH_ACR_PRFTEN)									|	/* enable prefetch							*/
 			(1 * FLASH_ACR_ICEN)									|	/* enable instruction cache					*/
