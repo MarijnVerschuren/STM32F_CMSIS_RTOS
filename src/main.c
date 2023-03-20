@@ -11,31 +11,12 @@
 #define BTN_PIN 0
 #define BTN_GPIO_PORT GPIOA
 
-// HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz
-SYS_CLK_Config_TypeDef clock_config = {
-		15,
-		120,
-		PLL_P_DIV2,
-		0,
-		PLL_SRC_HSE,
-		FLASH_LATENCY_3_CYCLES,
-		1,
-		1,
-		1,
-		SYS_CLK_SRC_PLL,
-		AHB_CLK_NO_DIV,
-		APBx_CLK_DIV2,
-		APBx_CLK_NO_DIV,
-		0,  // disable
-		MCO1_CLK_SRC_HSI,
-		0,
-		MCOx_CLK_NO_DIV,
-		MCOx_CLK_NO_DIV,
-		MCO2_CLK_SRC_SYS_CLK,
-		12500UL,
-		1000UL,
-		SysTick_CTRL_ENABLE_Msk
-};
+SYS_CLK_Config_TypeDef* clock_config = nullptr;
+// TODO: segment config struct using unions to combine flags (such as the FLASH flags)
+/* TODO: enable sys tick
+clock_config->SYS_tick_reload =			12500UL;
+clock_config->SYS_tick_reload =			1000UL;
+clock_config->SYS_tick_reload =			SysTick_CTRL_ENABLE_Msk;*/
 
 
 extern void EXTI0_IRQHandler(void) {
@@ -48,8 +29,21 @@ extern void TIM2_IRQHandler(void) {
 	toggle_pin(LED_PIN, LED_GPIO_PORT);
 }
 
+
 int main(void) {
-	sys_clock_init(&clock_config);
+	clock_config = new_SYS_CLK_config();
+	// HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz
+	clock_config->PLL_M =					15;
+	clock_config->PLL_N =					120;
+	clock_config->PLL_P =					PLL_P_DIV2;
+	clock_config->PLL_source =				PLL_SRC_HSE;
+	clock_config->FLASH_latency =			FLASH_LATENCY_3_CYCLES;
+	clock_config->FLASH_prefetch =			1;
+	clock_config->FLASH_instruction_cache =	1;
+	clock_config->FLASH_data_cache =		1;
+	clock_config->SYS_CLK_source =			SYS_CLK_SRC_PLL;
+	clock_config->APB1_prescaler =			APBx_CLK_DIV2;
+	sys_clock_init(clock_config);
 
 	// initialize GPIO peripheral clock (on enabled ports)
 	enable_GPIO_port(LED_GPIO_PORT);
@@ -67,7 +61,7 @@ int main(void) {
 	// set initial state of the pins
 	write_pin(LED_PIN, LED_GPIO_PORT, 1);  // led is active low
 
-	TIM_init(TIM2, 12500, 1000, 1);
+	TIM_init(TIM2, 100000, 1000, 1);
 	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
 	TIM_start(TIM2);
 

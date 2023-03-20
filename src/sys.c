@@ -4,6 +4,37 @@
 #include "sys.h"
 
 
+SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
+	SYS_CLK_Config_TypeDef* config = malloc(sizeof(SYS_CLK_Config_TypeDef));
+	// reset PLL config
+	// PLL_freq = src / m * n / p
+	config->PLL_M = 1;
+	config->PLL_N = 2;
+	config->PLL_P = PLL_P_DIV2;
+	config->PLL_Q = 0;					// disable
+	config->PLL_source = PLL_SRC_HSI;	// 16 MHz
+	// reset flash config
+	config->FLASH_latency = FLASH_LATENCY_1_CYCLES;
+	config->FLASH_prefetch =			0;
+	config->FLASH_instruction_cache =	0;
+	config->FLASH_data_cache =			0;
+	// reset sys clock config
+	config->SYS_CLK_source = SYS_CLK_SRC_HSI;
+	config->AHB_prescaler =				0;	// no div
+	config->APB1_prescaler =			0;	// no div
+	config->APB2_prescaler =			0;	// no div
+	config->RTC_prescaler =				0;	// disable
+	config->MCO1_source =				0;	// HSI
+	config->I2S_external_clock =		0;
+	config->MCO1_prescaler =			0;	// no div
+	config->MCO2_prescaler =			0;	// no div
+	config->MCO2_source =				0;	// SYS_CLK
+	// disable sys tick
+	config->SYS_tick_reload =			0;
+	config->SYS_tick_start_value =		0;
+	config->SYS_tick_control =			0;
+	return config;
+}
 
 void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
 	RCC->PLLCFGR = (																									/*

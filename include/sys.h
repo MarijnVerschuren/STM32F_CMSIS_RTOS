@@ -118,6 +118,9 @@ typedef struct {
 	uint32_t SYS_tick_control;
 } SYS_CLK_Config_TypeDef;
 
+
+SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void);
 void sys_clock_init(SYS_CLK_Config_TypeDef* config);
+
 
 #endif //STM32F
