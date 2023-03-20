@@ -14,7 +14,7 @@ SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	config->PLL_Q = 0;					// disable
 	config->PLL_source = PLL_SRC_HSI;	// 16 MHz
 	// reset flash config
-	config->FLASH_latency = FLASH_LATENCY_1_CYCLES;
+	config->FLASH_latency = FLASH_LATENCY1;
 	config->FLASH_prefetch =			0;
 	config->FLASH_instruction_cache =	0;
 	config->FLASH_data_cache =			0;

@@ -10,8 +10,8 @@
 // extern volatile uint64_t ticks;
 
 /*!< init / disable */
-void TIM_init(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt);
-void TIM_disable(TIM_TypeDef* tim);
+void enable_TIM_clock(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt);
+void disable_TIM_clock(TIM_TypeDef* tim);
 /*!< actions */
 void TIM_start(TIM_TypeDef* tim);
 void TIM_stop(TIM_TypeDef* tim);

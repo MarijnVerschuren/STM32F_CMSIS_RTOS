@@ -9,7 +9,7 @@ uint8_t port_to_int(GPIO_TypeDef* port) {
 	return ((uint32_t)(port - AHB2PERIPH_BASE) >> 10u) & 0x7u;
 }
 /*!< init / disable */
-void enable_GPIO_port(GPIO_TypeDef* port) {
+void enable_GPIO_port_clock(GPIO_TypeDef* port) {
 	#ifdef STM32F3xx
 	uint8_t pos = 16 + ((port_to_int(port) + 1) % 8);
 	RCC->AHBENR |= 0b1u << pos;
@@ -17,7 +17,7 @@ void enable_GPIO_port(GPIO_TypeDef* port) {
 	RCC->AHB1ENR |= 0b1u << port_to_int(port);
 	#endif
 }
-void disable_GPIO_port(GPIO_TypeDef* port) {
+void disable_GPIO_port_clock(GPIO_TypeDef* port) {
 	#ifdef STM32F3xx
 	uint8_t pos = 16 + ((port_to_int(port) + 1) % 8);
 	RCC->AHBENR &= ~(0b1u << pos);

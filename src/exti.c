@@ -15,8 +15,11 @@ static uint32_t EXTI_line_to_IRQn(uint8_t EXTI_line) {
 
 
 /*!< init */
-void EXTI_init(void) {
+void enable_EXTI_clock(void) {
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+}
+void disable_EXTI_clock(void) {
+	RCC->APB2ENR &= ~RCC_APB2ENR_SYSCFGEN;
 }
 
 /*!< enable / disable */

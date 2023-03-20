@@ -35,8 +35,8 @@ uint8_t port_to_int(GPIO_TypeDef* port);
 // TODO
 //void lock_pin_config(uint8_t pin, GPIO_TypeDef* port);
 //void unlock_pin_config(uint8_t pin, GPIO_TypeDef* port);
-void enable_GPIO_port(GPIO_TypeDef* port);
-void disable_GPIO_port(GPIO_TypeDef* port);
+void enable_GPIO_port_clock(GPIO_TypeDef* port);
+void disable_GPIO_port_clock(GPIO_TypeDef* port);
 void reset_pin_config(uint8_t pin, GPIO_TypeDef* port);
 void config_pin(uint8_t pin, GPIO_TypeDef* port, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef out_type);
 /*!< output */

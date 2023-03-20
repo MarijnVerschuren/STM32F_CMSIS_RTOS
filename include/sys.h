@@ -30,14 +30,14 @@ typedef enum {
 	// flash access latency |                                            H_CLK (MHz)                                 |
 	//      (table 6)       |              voltage range      voltage range      voltage range      voltage range    |
 	//    in CPU cycles     |__________      2V7 - 3V6          2V4 - 2V7          2V1 - 2V4          1V71 - 2V1     |
-	FLASH_LATENCY_1_CYCLES = 0b000,  //    0 < H_CLK ≤ 30     0 < H_CLK ≤ 24     0 < H_CLK ≤ 18     0 < H_CLK ≤ 16   |
-	FLASH_LATENCY_2_CYCLES = 0b001,  //    30 < H_CLK ≤ 60    24 < H_CLK ≤ 48    18 < H_CLK ≤ 36    16 < H_CLK ≤ 32  |
-	FLASH_LATENCY_3_CYCLES = 0b010,  //    60 < H_CLK ≤ 84    48 < H_CLK ≤ 72    36 < H_CLK ≤ 54    32 < H_CLK ≤ 48  |
-	FLASH_LATENCY_4_CYCLES = 0b011,  //           -           72 < H_CLK ≤ 84    54 < H_CLK ≤ 72    48 < H_CLK ≤ 64  |
-	FLASH_LATENCY_5_CYCLES = 0b100,  //           -                  -           72 < H_CLK ≤ 84    64 < H_CLK ≤ 80  |
-	FLASH_LATENCY_6_CYCLES = 0b101,  //           -                  -                  -           80 < H_CLK ≤ 84  |
-	FLASH_LATENCY_7_CYCLES = 0b110,  //           -                  -                  -                  -         |
-	FLASH_LATENCY_8_CYCLES = 0b111   //           -                  -                  -                  -         |
+	FLASH_LATENCY1 =         0b000,  //    0 < H_CLK ≤ 30     0 < H_CLK ≤ 24     0 < H_CLK ≤ 18     0 < H_CLK ≤ 16   |
+	FLASH_LATENCY2 =         0b001,  //    30 < H_CLK ≤ 60    24 < H_CLK ≤ 48    18 < H_CLK ≤ 36    16 < H_CLK ≤ 32  |
+	FLASH_LATENCY3 =         0b010,  //    60 < H_CLK ≤ 84    48 < H_CLK ≤ 72    36 < H_CLK ≤ 54    32 < H_CLK ≤ 48  |
+	FLASH_LATENCY4 =         0b011,  //           -           72 < H_CLK ≤ 84    54 < H_CLK ≤ 72    48 < H_CLK ≤ 64  |
+	FLASH_LATENCY5 =         0b100,  //           -                  -           72 < H_CLK ≤ 84    64 < H_CLK ≤ 80  |
+	FLASH_LATENCY6 =         0b101,  //           -                  -                  -           80 < H_CLK ≤ 84  |
+	FLASH_LATENCY7 =         0b110,  //           -                  -                  -                  -         |
+	FLASH_LATENCY8 =         0b111   //           -                  -                  -                  -         |
 	//===============================================================================================================|
 } FLASH_LATENCY_TypeDef;
 
@@ -89,32 +89,32 @@ typedef enum {
 	MCOx_CLK_DIV5 =		0b111
 } MCOx_CLK_Prescaler_TypeDef;
 
-typedef struct {
-	// RCC_PLL_CFGR config
-	uint32_t PLL_M								: 6;
-	uint32_t PLL_N								: 9;
-	PLL_P_TypeDef PLL_P							: 2;
-	uint32_t PLL_Q								: 4;  // (0, 1 are invalid)
-	PLL_Source_TypeDef PLL_source				: 1;
-	// FLASH_ACR config
-	FLASH_LATENCY_TypeDef FLASH_latency			: 3;
-	uint32_t FLASH_prefetch						: 1;
-	uint32_t FLASH_instruction_cache			: 1;
-	uint32_t FLASH_data_cache					: 1;
-	// RCC_CFGR config
-	SYS_CLK_Source_TypeDef SYS_CLK_source		: 2;
-	AHB_CLK_Prescaler_TypeDef AHB_prescaler		: 4;
-	APBx_CLK_Prescaler_TypeDef APB1_prescaler	: 3;
-	APBx_CLK_Prescaler_TypeDef APB2_prescaler	: 3;
-	uint32_t RTC_prescaler						: 5;
-	MCO1_CLK_Source_TypeDef MCO1_source			: 2;
-	uint32_t I2S_external_clock					: 1;
-	MCOx_CLK_Prescaler_TypeDef MCO1_prescaler	: 3;
-	MCOx_CLK_Prescaler_TypeDef MCO2_prescaler	: 3;
-	MCO2_CLK_Source_TypeDef MCO2_source			: 2;
-	// SYS_TICK config
-	uint32_t SYS_tick_reload					: 24;
-	uint32_t SYS_tick_start_value				: 24;
+typedef struct {  //					: 136
+	// RCC_PLL_CFGR config				: 22
+	uint32_t PLL_M						: 6;
+	uint32_t PLL_N						: 9;
+	uint32_t PLL_P						: 2;  // PLL_P_TypeDef
+	uint32_t PLL_Q						: 4;  // (0, 1 are invalid)
+	uint32_t PLL_source					: 1;  // PLL_Source_TypeDef
+	// FLASH_ACR config					: 6
+	uint32_t FLASH_latency				: 3;  // FLASH_LATENCY_TypeDef
+	uint32_t FLASH_prefetch				: 1;
+	uint32_t FLASH_instruction_cache	: 1;
+	uint32_t FLASH_data_cache			: 1;
+	// RCC_CFGR config					: 28
+	uint32_t SYS_CLK_source				: 2;  // SYS_CLK_Source_TypeDef
+	uint32_t AHB_prescaler				: 4;  // AHB_CLK_Prescaler_TypeDef
+	uint32_t APB1_prescaler				: 3;  // APBx_CLK_Prescaler_TypeDef
+	uint32_t APB2_prescaler				: 3;  // APBx_CLK_Prescaler_TypeDef
+	uint32_t RTC_prescaler				: 5;
+	uint32_t MCO1_source				: 2;  // MCO1_CLK_Source_TypeDef
+	uint32_t I2S_external_clock			: 1;
+	uint32_t MCO1_prescaler				: 3;  // MCOx_CLK_Prescaler_TypeDef
+	uint32_t MCO2_prescaler				: 3;  // MCOx_CLK_Prescaler_TypeDef
+	uint32_t MCO2_source				: 2;  // MCO2_CLK_Source_TypeDef
+	// SYS_TICK config					: 80
+	uint32_t SYS_tick_reload			: 24;
+	uint32_t SYS_tick_start_value		: 24;
 	uint32_t SYS_tick_control;
 } SYS_CLK_Config_TypeDef;
 

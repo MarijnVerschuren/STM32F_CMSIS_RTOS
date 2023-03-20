@@ -20,17 +20,17 @@ static uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 //extern void SysTick_IRQHandler(void) { ticks++; }
 
 /*!< init / disable */
-void TIM_init(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt) {
-	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)(tim - APB2PERIPH_BASE) >> 10u) & 0xfu)); }
-	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u) & 0xfu)); }
+void enable_TIM_clock(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt) {
+	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }
+	else														{ RCC->APB1ENR |= (0b1u << ((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u)); }
 	//RCC_TypeDef* ptr = RCC;
 	tim->PSC = prescaler;
 	tim->ARR = limit;
 	if (update_interrupt) { tim->DIER |= TIM_DIER_UIE; }  // enable update interrupt (rollover interrupt)
 }
-void TIM_disable(TIM_TypeDef* tim) {
-	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)(tim - APB2PERIPH_BASE) >> 10u) & 0xfu)); }
-	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u) & 0xfu)); }
+void disable_TIM_clock(TIM_TypeDef* tim) {
+	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }
+	else														{ RCC->APB1ENR &= ~(0b1u << ((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u)); }
 }
 
 /*!< actions */

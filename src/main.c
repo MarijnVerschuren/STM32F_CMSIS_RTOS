@@ -3,6 +3,7 @@
 #include "exti.h"
 #include "tim.h"	// all timers and delays are defined here
 #include "sys.h"
+#include "usart.h"
 
 
 #ifdef STM32F4xx
@@ -37,7 +38,7 @@ int main(void) {
 	clock_config->PLL_N =					120;
 	clock_config->PLL_P =					PLL_P_DIV2;
 	clock_config->PLL_source =				PLL_SRC_HSE;
-	clock_config->FLASH_latency =			FLASH_LATENCY_3_CYCLES;
+	clock_config->FLASH_latency =			FLASH_LATENCY3;
 	clock_config->FLASH_prefetch =			1;
 	clock_config->FLASH_instruction_cache =	1;
 	clock_config->FLASH_data_cache =		1;
@@ -46,11 +47,11 @@ int main(void) {
 	sys_clock_init(clock_config);
 
 	// initialize GPIO peripheral clock (on enabled ports)
-	enable_GPIO_port(LED_GPIO_PORT);
-	enable_GPIO_port(BTN_GPIO_PORT);
+	enable_GPIO_port_clock(LED_GPIO_PORT);
+	enable_GPIO_port_clock(BTN_GPIO_PORT);
 
 	// initialize EXTI
-	EXTI_init();
+	enable_EXTI_clock();
 	enable_EXTI(BTN_PIN, BTN_GPIO_PORT, 1, 0);
 	start_EXTI(BTN_PIN);  // EXTI0_IRQHandler
 
@@ -61,10 +62,11 @@ int main(void) {
 	// set initial state of the pins
 	write_pin(LED_PIN, LED_GPIO_PORT, 1);  // led is active low
 
-	TIM_init(TIM2, 100000, 1000, 1);
+	enable_TIM_clock(TIM2, 100000, 1000, 1);
 	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
 	TIM_start(TIM2);
 
+	enable_USART_clock(USART1);
 	// TODO: UART, PWM
 
 	for(;;) {}
