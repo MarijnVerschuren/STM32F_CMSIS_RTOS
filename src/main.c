@@ -22,12 +22,12 @@ clock_config->SYS_tick_reload =			SysTick_CTRL_ENABLE_Msk;*/
 
 extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
-	toggle_pin(LED_PIN, LED_GPIO_PORT);
+	toggle_pin(LED_GPIO_PORT, LED_PIN);
 }
 
 extern void TIM2_IRQHandler(void) {
 	TIM2->SR &= ~TIM_SR_UIF;
-	toggle_pin(LED_PIN, LED_GPIO_PORT);
+	toggle_pin(LED_GPIO_PORT, LED_PIN);
 }
 
 
@@ -56,11 +56,11 @@ int main(void) {
 	start_EXTI(BTN_PIN);  // EXTI0_IRQHandler
 
 	// configure pins
-	config_pin(LED_PIN, LED_GPIO_PORT, GPIO_output, GPIO_medium_speed, GPIO_no_pull, push_pull);
-	config_pin(BTN_PIN, BTN_GPIO_PORT, GPIO_input, GPIO_medium_speed, GPIO_pull_up, push_pull);
+	config_pin(LED_GPIO_PORT, LED_PIN, GPIO_output, GPIO_medium_speed, GPIO_no_pull, push_pull);
+	config_pin(BTN_GPIO_PORT, BTN_PIN, GPIO_input, GPIO_medium_speed, GPIO_pull_up, push_pull);
 
 	// set initial state of the pins
-	write_pin(LED_PIN, LED_GPIO_PORT, 1);  // led is active low
+	write_pin(LED_GPIO_PORT, LED_PIN, 1);  // led is active low
 
 	enable_TIM_clock(TIM2, 100000, 1000, 1);
 	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
@@ -115,3 +115,56 @@ int main(void) {
 	for(;;) { __WFI(); }
 }
 #endif
+
+
+/*  TODO: format these like so: port_num: 4 | pin_num: 4 | af: 4
+typedef enum {
+	// SYS
+	SYS_AF =		0x0,
+	// TIM1 TIM2
+	TIM1_AF =		0x1,
+	TIM2_AF =		0x1,
+	// TIM3 TIM4 TIM5
+	TIM3_AF =		0x2,
+	TIM4_AF =		0x2,
+	TIM5_AF =		0x2,
+	// TIM9 TIM10 TIM11
+	TIM9_AF =		0x3,
+	TIM10_AF =		0x3,
+	TIM11_AF =		0x3,
+	// I2C1 I2C2 I2C3
+	I2C1_AF =		0x4,
+	I2C2_AF =		0x4,
+	I2C3_AF =		0x4,
+	// SPI1 I2S1_SPI2 I2S2 SPI3 I2S3
+	SPI1_AF =		0x5,
+	SPI2_AF =		0x5,
+	SPI3_AF =		0x5,
+	I2S2_AF =		0x5,
+	I2S3_AF =		0x5,
+	I2S1_SPI2_AF =	0x5,
+	// SPI2 I2S2 SPI3 I2S3 SPI4 I2S4 SPI5 I2S5
+	SPI2_AF2 =		0x6,
+	SPI3_AF2 =		0x6,
+	SPI4_AF =		0x6,
+	SPI5_AF =		0x6,
+	I2S2_AF2 =		0x6,
+	I2S3_AF2 =		0x6,
+	I2S4_AF =		0x6,
+	I2S5_AF =		0x6,
+	// SPI3 I2S3 USART1 USART2
+	SPI3_AF3 =		0x7,
+	I2S3_AF3 =		0x7,
+	USART1_AF =		0x7,
+	USART2_AF =		0x7,
+	// USART6
+	USART6_AF =		0x8,
+	// I2C2 I2C3
+	I2C2_AF2 =		0x9,
+	I2C3_AF2 =		0x9,
+	// USB_OTG_FS
+	USB_OTG_FS_AF =	0xA,
+	// SDIO
+	SDIO_AF =		0xC
+} GPIO_ALT_FUNCTION_TypeDef;
+ */

@@ -8,6 +8,9 @@
 uint8_t port_to_int(GPIO_TypeDef* port) {
 	return ((uint32_t)(port - AHB2PERIPH_BASE) >> 10u) & 0x7u;
 }
+GPIO_TypeDef* int_to_port(uint8_t num) {
+	return (GPIO_TypeDef*)(((num & 0x7u) << 10) + AHB2PERIPH_BASE);
+}
 /*!< init / disable */
 void enable_GPIO_port_clock(GPIO_TypeDef* port) {
 	#ifdef STM32F3xx
@@ -30,27 +33,29 @@ void lock_pin_config(uint8_t pin, GPIO_TypeDef* port) {
 }
 void unlock_pin_config(uint8_t pin, GPIO_TypeDef* port) {
 }*/
-void reset_pin_config(uint8_t pin, GPIO_TypeDef* port) {
+void reset_pin_config(GPIO_TypeDef* port, uint8_t pin) {
 	port->MODER &= ~(0b11u << (pin << 1u));
 	port->OSPEEDR &= ~(0b11u << (pin << 1u));
 	port->PUPDR &= ~(0b11u << (pin << 1u));
 	port->OTYPER &= (0b1u << pin);
 }
-void config_pin(uint8_t pin, GPIO_TypeDef* port, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef out_type) {
-	reset_pin_config(pin, port);
+void config_pin(GPIO_TypeDef* port, uint8_t pin, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef out_type) {
+	reset_pin_config(port, pin);
 	port->MODER |= (mode << (pin << 1u));
 	port->OSPEEDR |= (speed << (pin << 1u));
 	port->PUPDR |= (pull << (pin << 1u));
 	port->OTYPER |= out_type << pin;
 }
+void config_pin_alt(GPIO_TypeDef* port, uint8_t pin, uint8_t alternate_function) {
+}
 /*!< output */
-void write_pin(uint8_t pin, GPIO_TypeDef* port, uint8_t data) {
+void write_pin(GPIO_TypeDef* port, uint8_t pin, uint8_t data) {
 	port->BSRR |= (1u << (pin << !data));
 }
-void toggle_pin(uint8_t pin, GPIO_TypeDef* port) {
+void toggle_pin(GPIO_TypeDef* port, uint8_t pin) {
 	port->ODR ^= (1u << pin);
 }
 /*!< input */
-uint8_t read_pin(uint8_t pin, GPIO_TypeDef* port) {
+uint8_t read_pin(GPIO_TypeDef* port, uint8_t pin) {
 	return (port->IDR >> pin) & 1u;
 }

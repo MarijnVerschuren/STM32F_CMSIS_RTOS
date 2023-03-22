@@ -8,11 +8,6 @@
 #include "main.h"
 
 
-/* M = 16
- * N = 192
- * P = 2 (0)
- * Q = 4
- * */
 typedef enum {
 	PLL_P_DIV2 = 0b00,
 	PLL_P_DIV4 = 0b01,
