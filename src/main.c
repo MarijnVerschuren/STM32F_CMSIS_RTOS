@@ -12,12 +12,16 @@
 #define BTN_PIN 0
 #define BTN_GPIO_PORT GPIOA
 
+
 SYS_CLK_Config_TypeDef* clock_config = nullptr;
-// TODO: segment config struct using unions to combine flags (such as the FLASH flags)
-/* TODO: enable sys tick
-clock_config->SYS_tick_reload =			12500UL;
-clock_config->SYS_tick_reload =			1000UL;
-clock_config->SYS_tick_reload =			SysTick_CTRL_ENABLE_Msk;*/
+/*
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+*/
 
 
 extern void EXTI0_IRQHandler(void) {
@@ -32,19 +36,23 @@ extern void TIM2_IRQHandler(void) {
 
 
 int main(void) {
-	clock_config = new_SYS_CLK_config();
+	clock_config = new_SYS_CLK_config();  // TODO: make functions that set the struct for nice notation
 	// HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz
-	clock_config->PLL_M =					15;
-	clock_config->PLL_N =					120;
-	clock_config->PLL_P =					PLL_P_DIV2;
-	clock_config->PLL_source =				PLL_SRC_HSE;
-	clock_config->FLASH_latency =			FLASH_LATENCY3;
-	clock_config->FLASH_prefetch =			1;
-	clock_config->FLASH_instruction_cache =	1;
-	clock_config->FLASH_data_cache =		1;
-	clock_config->SYS_CLK_source =			SYS_CLK_SRC_PLL;
-	clock_config->APB1_prescaler =			APBx_CLK_DIV2;
+	clock_config->PLL_M =						15;
+	clock_config->PLL_N =						120;
+	clock_config->PLL_P =						PLL_P_DIV2;
+	clock_config->PLL_source =					PLL_SRC_HSE;
+	clock_config->SYS_CLK_source =				SYS_CLK_SRC_PLL;
+	clock_config->APB1_prescaler =				APBx_CLK_DIV2;
+	clock_config->APB2_prescaler =				APBx_CLK_NO_DIV;
+	clock_config->SYS_tick_enable =				1;
+	clock_config->SYS_tick_interrupt_enable =	1;
+	clock_config->FLASH_prefetch =				1;
+	clock_config->FLASH_instruction_cache =		1;
+	clock_config->FLASH_data_cache =			1;
 	sys_clock_init(clock_config);
+
+	// TODO: remove the enable clock functions (incorporate it into the config funcs) (do leave a disable func)
 
 	// initialize GPIO peripheral clock (on enabled ports)
 	enable_GPIO_port_clock(LED_GPIO_PORT);
@@ -56,20 +64,35 @@ int main(void) {
 	start_EXTI(BTN_PIN);  // EXTI0_IRQHandler
 
 	// configure pins
-	config_pin(LED_GPIO_PORT, LED_PIN, GPIO_output, GPIO_medium_speed, GPIO_no_pull, push_pull);
-	config_pin(BTN_GPIO_PORT, BTN_PIN, GPIO_input, GPIO_medium_speed, GPIO_pull_up, push_pull);
+	config_pin(LED_GPIO_PORT, LED_PIN, GPIO_output, GPIO_medium_speed, GPIO_no_pull, GPIO_push_pull);
+	config_pin(BTN_GPIO_PORT, BTN_PIN, GPIO_input, GPIO_medium_speed, GPIO_pull_up, GPIO_push_pull);
+
+	// configure the timer
+	enable_TIM_clock(TIM2, 100000, 500, 1);
+	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
+	TIM_start(TIM2);
 
 	// set initial state of the pins
 	write_pin(LED_GPIO_PORT, LED_PIN, 1);  // led is active low
 
-	enable_TIM_clock(TIM2, 100000, 1000, 1);
-	start_TIM_update_irq(TIM2);  // TIM2_IRQHandler
-	TIM_start(TIM2);
+	// TODO: update function with the following source:
+	// https://controllerstech.com/how-to-setup-uart-using-registers-in-stm32/
+	// TODO: fix USART1/6 try source:
+	// https://stackoverflow.com/questions/43441008/stm32f4-usart1-sends-garbage
+	config_UART(USART1, 115200, USART1_TX_A9, USART1_RX_A10);
+	config_UART(USART2, 115200, USART2_TX_A2, USART2_RX_A3);
+	config_UART(USART6, 115200, USART6_TX_A11, USART6_RX_A12);
 
-	enable_USART_clock(USART1);
-	// TODO: UART, PWM
-
-	for(;;) {}
+	for(;;) {
+		USART_print(USART1, "hello UART1!\n", 100);
+		delay_ms(250);
+		USART_print(USART2, "hello UART2!\n", 100);
+		delay_ms(250);
+		USART_print(USART6, "hello UART6!\n", 100);
+		delay_ms(250);
+		USART_transmit(USART1, '\n', 10);
+		delay_ms(250);
+	}
 }
 #elif defined(STM32F3xx)
 #define LED_PIN 5

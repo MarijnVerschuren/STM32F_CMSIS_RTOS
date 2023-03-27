@@ -6,6 +6,7 @@
 #define STM32F_CMSIS_USART_H
 #include "main.h"
 #include "gpio.h"
+#include "sys.h"
 
 
 /* data layout:
@@ -45,14 +46,17 @@ typedef enum {
 } USART_GPIO_TypeDef;
 
 
-/*!< init */
+/*!< init / enable / disable */
 void enable_USART_clock(USART_TypeDef* usart);
 void disable_USART_clock(USART_TypeDef* usart);
-void config_USART(USART_TypeDef* usart, USART_GPIO_TypeDef rx, USART_GPIO_TypeDef tx);
-// TODO: CLK, CTS, RTS
+void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx);
+// TODO: config_USART for CLK, CTS, RTS
 // TODO: https://mcturra2000.wordpress.com/2021/11/19/using-cmsis-to-read-write-on-uart-on-stm32f4/
-/*!< enable / disable */
-
-
+/*!< input / output */
+uint8_t USART_transmit(USART_TypeDef* usart, uint8_t byte, uint32_t timeout);
+uint8_t USART_receive(USART_TypeDef* usart, uint8_t* byte, uint32_t timeout);
+uint32_t USART_write(USART_TypeDef* usart, const uint8_t* buffer, uint32_t size, uint32_t timeout);
+uint32_t USART_read(USART_TypeDef* usart, uint8_t* buffer, uint32_t size, uint32_t timeout);
+uint8_t USART_print(USART_TypeDef* usart, char* str, uint32_t timeout);
 
 #endif //STM32F_CMSIS_USART_H

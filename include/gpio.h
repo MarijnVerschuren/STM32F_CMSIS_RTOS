@@ -13,9 +13,10 @@ typedef enum {
 	GPIO_analog =		0b11
 } GPIO_MODE_TypeDef;
 typedef enum {
-	GPIO_low_speed =	0b00,	// 0bx0
-	GPIO_medium_speed =	0b01,
-	GPIO_high_speed =	0b11
+	GPIO_low_speed =		0b00,
+	GPIO_medium_speed =		0b01,
+	GPIO_high_speed =		0b10,
+	GPIO_very_high_speed =	0b11
 } GPIO_SPEED_TypeDef;
 typedef enum {
 	GPIO_no_pull =		0b00,
@@ -24,15 +25,15 @@ typedef enum {
 	GPIO_reserved =		0x11
 } GPIO_PULL_TypeDef;
 typedef enum {
-	push_pull =			0b0,
-	open_drain =		0b1
+	GPIO_push_pull =	0b0,
+	GPIO_open_drain =	0b1
 } GPIO_OT_TypeDef;
 
 
 /*!< misc */
 uint8_t port_to_int(GPIO_TypeDef* port);
 GPIO_TypeDef* int_to_port(uint8_t num);
-/*!< init / disable */
+/*!< init / enable / disable */
 // TODO
 //void lock_pin_config(uint8_t pin, GPIO_TypeDef* port);
 //void unlock_pin_config(uint8_t pin, GPIO_TypeDef* port);

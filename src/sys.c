@@ -4,6 +4,19 @@
 #include "sys.h"
 
 
+uint32_t PLL_clock_frequency = 0;
+uint32_t AHB_clock_frequency = 16000000;
+uint32_t APB1_clock_frequency = 16000000;
+uint32_t APB2_clock_frequency = 16000000;
+uint32_t RTC_clock_frequency = 0;
+
+uint32_t SYS_clock_frequency = 16000000;
+
+volatile uint64_t tick = 0;
+
+
+void SysTick_Handler(void) { tick++; }
+
 SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	SYS_CLK_Config_TypeDef* config = malloc(sizeof(SYS_CLK_Config_TypeDef));
 	// reset PLL config
@@ -30,13 +43,15 @@ SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	config->MCO2_prescaler =			0;	// no div
 	config->MCO2_source =				0;	// SYS_CLK
 	// disable sys tick
-	config->SYS_tick_reload =			0;
-	config->SYS_tick_start_value =		0;
-	config->SYS_tick_control =			0;
+	config->SYS_tick_enable =			0;
+	config->SYS_tick_interrupt_enable =	0;
+	// setting additional (external info) to their default
+	config->SYS_power = SYS_power_nominal;  // it is assumed that the power is nominal (this is used to determine flash delay)
 	return config;
 }
 
 void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
+	PLL_clock_frequency = ((16000000 + (9000000 * config->PLL_source)) / config->PLL_M) * (config->PLL_N / (2 * (config->PLL_P + 1)));
 	RCC->PLLCFGR = (																									/*
 				PLL_M: division factor for the main PLL and audio PLL (PLLI2S) input clock. Info:
 					the software has to set these bits correctly to ensure that the VCO
@@ -91,9 +106,37 @@ void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
 	- when VOS[1:0] = 0x10, the maximum frequency of HCLK = 84 MHz.
 	*/
 
+	// clock speeds are calculated here so that the flash delay calculation can use them
+	switch (config->SYS_CLK_source) {
+		case SYS_CLK_SRC_HSI:	SYS_clock_frequency = 16000000; break;
+		case SYS_CLK_SRC_HSE:	SYS_clock_frequency = 25000000; break;
+		case SYS_CLK_SRC_PLL:	SYS_clock_frequency = PLL_clock_frequency; break;
+		default:				SYS_clock_frequency = 0; break;
+	}
+	if (config->AHB_prescaler & 0x8) {
+		if (config->AHB_prescaler & 0x4)	{ AHB_clock_frequency = SYS_clock_frequency / (64 << (config->AHB_prescaler & 0x3)); }
+		else								{ AHB_clock_frequency = SYS_clock_frequency / (2 << (config->AHB_prescaler & 0x3)); }
+	} else									{ AHB_clock_frequency = SYS_clock_frequency; }
+	if (config->APB1_prescaler & 0x4)		{ APB1_clock_frequency = SYS_clock_frequency / (2 << (config->APB1_prescaler & 0x3)); }
+	else									{ APB1_clock_frequency = SYS_clock_frequency; }
+	if (config->APB2_prescaler & 0x4)		{ APB2_clock_frequency = SYS_clock_frequency / (2 << (config->APB2_prescaler & 0x3)); }
+	else									{ APB2_clock_frequency = SYS_clock_frequency; }
+	RTC_clock_frequency = 0;
+	if (config->RTC_prescaler > 1)			{ RTC_clock_frequency = SYS_clock_frequency / config->RTC_prescaler; }
+
+	uint8_t flash_latency;
+	switch (config->SYS_power) {
+		case SYS_power_1v7:		flash_latency = SYS_clock_frequency / 16000000; break;
+		case SYS_power_2v1:		flash_latency = SYS_clock_frequency / 18000000; break;
+		case SYS_power_2v4:		flash_latency = SYS_clock_frequency / 24000000; break;
+		case SYS_power_nominal:	flash_latency = SYS_clock_frequency / 30000000; break;
+	}
+	flash_latency = flash_latency > FLASH_LATENCY8 ? FLASH_LATENCY8: flash_latency;							// make sure that the latency is not larger than the max
+	config->FLASH_latency = config->FLASH_latency > flash_latency ? config->FLASH_latency: flash_latency;	// use the max latency
+
 	FLASH->ACR = (																										/*
  				LATENCY: flash read latency (see the table at the definition for ACR_LATENCY_TypeDef for more info)		*/
-			((config->FLASH_latency << FLASH_ACR_LATENCY_Pos) & FLASH_ACR_LATENCY_7WS)	|
+			(config->FLASH_latency << FLASH_ACR_LATENCY_Pos)							|
 			(config->FLASH_prefetch * FLASH_ACR_PRFTEN)									|	/* enable prefetch			*/
 			(config->FLASH_instruction_cache * FLASH_ACR_ICEN)							|	/* enable instruction cache	*/
 			(config->FLASH_data_cache * FLASH_ACR_DCEN)										/* enable data cache		*/
@@ -164,8 +207,19 @@ void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
 
 	while((RCC->CFGR & RCC_CFGR_SWS) != ((config->SYS_CLK_source << RCC_CFGR_SWS_Pos) & RCC_CFGR_SWS_Msk)) { /* wait untill the selected clock is enabled*/ }
 
-	/* configure SysTick timer. By default the clock source of SysTick is AHB/8 = 12.5 MHz */
-	SysTick->LOAD = config->SYS_tick_reload - 1;			/* set reload register */
-	SysTick->VAL  = config->SYS_tick_start_value - 1;		/* load counter value  */
-	SysTick->CTRL = config->SYS_tick_control;				/* start SysTick timer */
+	/* configure SysTick timer. By default the clock source of SysTick is AHB/8 */
+	SysTick->LOAD = (AHB_clock_frequency / 8000) - 1;						/* set reload register */
+	SysTick->VAL  = 0;														/* load counter value  */
+	SysTick->CTRL = (														/* start SysTick timer */
+		(SysTick_CTRL_ENABLE_Msk * config->SYS_tick_enable)				|
+		(SysTick_CTRL_TICKINT_Msk * config->SYS_tick_interrupt_enable)
+	);
+	// set IRQ priority
+	SCB->SHP[(SysTick_IRQn & 0xFUL) - 4UL] = ((((1UL << __NVIC_PRIO_BITS) - 1UL) << (8U - __NVIC_PRIO_BITS)) & 0xFFUL);
+}
+
+/*!< misc */
+void delay_ms(uint64_t ms) {
+	uint64_t start = tick;
+	while ((tick - start) < ms) {}
 }

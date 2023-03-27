@@ -13,5 +13,6 @@
 #endif
 
 #define nullptr ((void*)0)
+#define __weak __attribute__((weak))
 
 #endif //STM32F_MAIN_H

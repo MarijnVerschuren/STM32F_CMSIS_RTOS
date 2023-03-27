@@ -6,10 +6,10 @@
 
 /*!< misc */
 uint8_t port_to_int(GPIO_TypeDef* port) {
-	return ((uint32_t)(port - AHB2PERIPH_BASE) >> 10u) & 0x7u;
+	return ((uint32_t)(port - AHB1PERIPH_BASE) >> 10u) & 0x7u;
 }
 GPIO_TypeDef* int_to_port(uint8_t num) {
-	return (GPIO_TypeDef*)(((num & 0x7u) << 10) + AHB2PERIPH_BASE);
+	return (GPIO_TypeDef*)(((num & 0x7u) << 10) + AHB1PERIPH_BASE);
 }
 /*!< init / disable */
 void enable_GPIO_port_clock(GPIO_TypeDef* port) {
@@ -47,6 +47,10 @@ void config_pin(GPIO_TypeDef* port, uint8_t pin, GPIO_MODE_TypeDef mode, GPIO_SP
 	port->OTYPER |= out_type << pin;
 }
 void config_pin_alt(GPIO_TypeDef* port, uint8_t pin, uint8_t alternate_function) {
+	uint8_t pos = ((pin & 0x7) << 2);
+	port->MODER |= (GPIO_alt_func<< (pin << 1u));					// let the rest of the config as is
+	port->AFR[pin >> 3] &= ~(0xf << pos);							// clear AFR entry
+	port->AFR[pin >> 3] |= ((alternate_function & 0xf) << pos);		// set AFR entry
 }
 /*!< output */
 void write_pin(GPIO_TypeDef* port, uint8_t pin, uint8_t data) {

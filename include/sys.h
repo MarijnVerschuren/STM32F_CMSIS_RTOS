@@ -21,19 +21,19 @@ typedef enum {
 } PLL_Source_TypeDef;
 
 typedef enum {
-	//===============================================================================================================|
-	// flash access latency |                                            H_CLK (MHz)                                 |
-	//      (table 6)       |              voltage range      voltage range      voltage range      voltage range    |
-	//    in CPU cycles     |__________      2V7 - 3V6          2V4 - 2V7          2V1 - 2V4          1V71 - 2V1     |
-	FLASH_LATENCY1 =         0b000,  //    0 < H_CLK ≤ 30     0 < H_CLK ≤ 24     0 < H_CLK ≤ 18     0 < H_CLK ≤ 16   |
-	FLASH_LATENCY2 =         0b001,  //    30 < H_CLK ≤ 60    24 < H_CLK ≤ 48    18 < H_CLK ≤ 36    16 < H_CLK ≤ 32  |
-	FLASH_LATENCY3 =         0b010,  //    60 < H_CLK ≤ 84    48 < H_CLK ≤ 72    36 < H_CLK ≤ 54    32 < H_CLK ≤ 48  |
-	FLASH_LATENCY4 =         0b011,  //           -           72 < H_CLK ≤ 84    54 < H_CLK ≤ 72    48 < H_CLK ≤ 64  |
-	FLASH_LATENCY5 =         0b100,  //           -                  -           72 < H_CLK ≤ 84    64 < H_CLK ≤ 80  |
-	FLASH_LATENCY6 =         0b101,  //           -                  -                  -           80 < H_CLK ≤ 84  |
-	FLASH_LATENCY7 =         0b110,  //           -                  -                  -                  -         |
-	FLASH_LATENCY8 =         0b111   //           -                  -                  -                  -         |
-	//===============================================================================================================|
+	//================================================================================================================|
+	// flash access latency |                                            H_CLK (MHz)                                  |
+	//      (table 6)       |              voltage range      voltage range      voltage range      voltage range     |
+	//    in CPU cycles     |__________      2V7 - 3V6          2V4 - 2V7          2V1 - 2V4          1V71 - 2V1      |
+	FLASH_LATENCY1 =         0b000,  //    0 < H_CLK ≤ 30     0 < H_CLK ≤ 24     0 < H_CLK ≤ 18     0 < H_CLK ≤ 16    |
+	FLASH_LATENCY2 =         0b001,  //    30 < H_CLK ≤ 60    24 < H_CLK ≤ 48    18 < H_CLK ≤ 36    16 < H_CLK ≤ 32   |
+	FLASH_LATENCY3 =         0b010,  //    60 < H_CLK ≤ 90    48 < H_CLK ≤ 72    36 < H_CLK ≤ 54    32 < H_CLK ≤ 48   |
+	FLASH_LATENCY4 =         0b011,  //    90 < H_CLK ≤ 120   72 < H_CLK ≤ 96    54 < H_CLK ≤ 72    48 < H_CLK ≤ 64   |
+	FLASH_LATENCY5 =         0b100,  //    120 < H_CLK ≤ 150  96 < H_CLK ≤ 120   72 < H_CLK ≤ 90    64 < H_CLK ≤ 80   |
+	FLASH_LATENCY6 =         0b101,  //    150 < H_CLK ≤ 168  120 < H_CLK ≤ 144  90 < H_CLK ≤ 108   80 < H_CLK ≤ 96   |
+	FLASH_LATENCY7 =         0b110,  //           -           144 < H_CLK ≤ 168  108 < H_CLK ≤ 120  96 < H_CLK ≤ 112  |
+	FLASH_LATENCY8 =         0b111   //           -                  -           120 < H_CLK ≤ 138  112 < H_CLK ≤ 128 |
+	//================================================================================================================|
 } FLASH_LATENCY_TypeDef;
 
 typedef enum {
@@ -84,7 +84,16 @@ typedef enum {
 	MCOx_CLK_DIV5 =		0b111
 } MCOx_CLK_Prescaler_TypeDef;
 
-typedef struct {  //					: 136
+typedef enum {
+	SYS_power_1v7 = 0,		// 1v71	- 2v1
+	SYS_power_2v1 = 1,		// 2v1	- 2v4
+	SYS_power_2v4 = 2,		// 2v4	- 2v7
+	SYS_power_2v7 = 3,		// 2v7	- 3v6
+	SYS_power_nominal = 3,
+} SYS_Power_TypeDef;
+
+
+typedef struct {
 	// RCC_PLL_CFGR config				: 22
 	uint32_t PLL_M						: 6;
 	uint32_t PLL_N						: 9;
@@ -108,14 +117,34 @@ typedef struct {  //					: 136
 	uint32_t MCO2_prescaler				: 3;  // MCOx_CLK_Prescaler_TypeDef
 	uint32_t MCO2_source				: 2;  // MCO2_CLK_Source_TypeDef
 	// SYS_TICK config					: 80
-	uint32_t SYS_tick_reload			: 24;
-	uint32_t SYS_tick_start_value		: 24;
-	uint32_t SYS_tick_control;
+	uint32_t SYS_tick_enable			: 1;
+	uint32_t SYS_tick_interrupt_enable	: 1;
+	// power setting (power provided to the MCU)
+	uint32_t SYS_power					: 2;
 } SYS_CLK_Config_TypeDef;
 
 
+/*!< variables */   // values are updated when calling sys_clock_init
+extern uint32_t PLL_clock_frequency;
+extern uint32_t AHB_clock_frequency;
+extern uint32_t APB1_clock_frequency;
+extern uint32_t APB2_clock_frequency;
+extern uint32_t RTC_clock_frequency;
+
+extern uint32_t SYS_clock_frequency;
+
+extern volatile uint64_t tick;  // updated sys_tick
+
+
+/*!< interrupts */
+void SysTick_Handler(void);
+
+/*!< init / enable / disable */
 SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void);
-void sys_clock_init(SYS_CLK_Config_TypeDef* config);
+void sys_clock_init(SYS_CLK_Config_TypeDef* config);	// the config given might change when a config contradiction was solved
+// TODO: make it possible to disable the PLL and HSE
 
+/*!< misc */
+void delay_ms(uint64_t ms);
 
-#endif //STM32F
+#endif

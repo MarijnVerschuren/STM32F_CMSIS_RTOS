@@ -6,10 +6,7 @@
 #include "main.h"
 
 
-/*!< variables */  // TODO
-// extern volatile uint64_t ticks;
-
-/*!< init / disable */
+/*!< init / enable / disable */
 void enable_TIM_clock(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt);
 void disable_TIM_clock(TIM_TypeDef* tim);
 /*!< actions */
