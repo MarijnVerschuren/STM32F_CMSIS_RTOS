@@ -47,8 +47,7 @@ typedef enum {
 
 
 /*!< init / enable / disable */
-void enable_USART_clock(USART_TypeDef* usart);
-void disable_USART_clock(USART_TypeDef* usart);
+void disable_USART(USART_TypeDef* usart);
 void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx);
 // TODO: config_USART for CLK, CTS, RTS
 // TODO: https://mcturra2000.wordpress.com/2021/11/19/using-cmsis-to-read-write-on-uart-on-stm32f4/

@@ -4,6 +4,7 @@
 #include "sys.h"
 
 
+/*!< variables */
 uint32_t PLL_clock_frequency = 0;
 uint32_t AHB_clock_frequency = 16000000;
 uint32_t APB1_clock_frequency = 16000000;
@@ -15,12 +16,14 @@ uint32_t SYS_clock_frequency = 16000000;
 volatile uint64_t tick = 0;
 
 
+/*!< interrupts */
 void SysTick_Handler(void) { tick++; }
 
+
+/*!< init / enable / disable */
 SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	SYS_CLK_Config_TypeDef* config = malloc(sizeof(SYS_CLK_Config_TypeDef));
 	// reset PLL config
-	// PLL_freq = src / m * n / p
 	config->PLL_M = 1;
 	config->PLL_N = 2;
 	config->PLL_P = PLL_P_DIV2;
@@ -38,7 +41,6 @@ SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	config->APB2_prescaler =			0;	// no div
 	config->RTC_prescaler =				0;	// disable
 	config->MCO1_source =				0;	// HSI
-	config->I2S_external_clock =		0;
 	config->MCO1_prescaler =			0;	// no div
 	config->MCO2_prescaler =			0;	// no div
 	config->MCO2_source =				0;	// SYS_CLK
@@ -48,6 +50,40 @@ SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void) {
 	// setting additional (external info) to their default
 	config->SYS_power = SYS_power_nominal;  // it is assumed that the power is nominal (this is used to determine flash delay)
 	return config;
+}
+void set_SYS_PLL_config(SYS_CLK_Config_TypeDef* config, uint8_t M, uint16_t N, PLL_P_TypeDef P, uint8_t Q, PLL_Source_TypeDef PLL_src) {
+	// PLL_freq = src / m * n / p
+	config->PLL_M =			M & 0x3F;
+	config->PLL_N =			N & 0x1FF;
+	config->PLL_P =			P;
+	config->PLL_Q =			Q;
+	config->PLL_source =	PLL_src;
+}
+void set_SYS_FLASH_config(SYS_CLK_Config_TypeDef* config, FLASH_LATENCY_TypeDef latency, uint8_t prefetch, uint8_t enable_icache, uint8_t enable_dcache) {
+	config->FLASH_latency =				latency;
+	config->FLASH_prefetch =			prefetch != 0;
+	config->FLASH_instruction_cache =	enable_icache != 0;
+	config->FLASH_data_cache =			enable_dcache != 0;
+}
+void set_SYS_CLOCK_config(SYS_CLK_Config_TypeDef* config, SYS_CLK_Source_TypeDef SYS_src, AHB_CLK_Prescaler_TypeDef AHB_prescaler, APBx_CLK_Prescaler_TypeDef APB1_prescaler, APBx_CLK_Prescaler_TypeDef APB2_prescaler, uint8_t RTC_prescaler) {
+	config->SYS_CLK_source =	SYS_src;
+	config->AHB_prescaler =		AHB_prescaler;
+	config->APB1_prescaler =	APB1_prescaler;
+	config->APB2_prescaler =	APB2_prescaler;
+	config->RTC_prescaler =		RTC_prescaler;
+}
+void set_SYS_MCO_config(SYS_CLK_Config_TypeDef* config, MCO1_CLK_Source_TypeDef MCO1_src, MCOx_CLK_Prescaler_TypeDef MCO1_prescaler, MCO2_CLK_Source_TypeDef MCO2_src, MCOx_CLK_Prescaler_TypeDef MCO2_prescaler) {
+	config->MCO1_source =		MCO1_src;
+	config->MCO1_prescaler =	MCO1_prescaler;
+	config->MCO2_source =		MCO2_src;
+	config->MCO2_prescaler =	MCO2_prescaler;
+}
+void set_SYS_tick_config(SYS_CLK_Config_TypeDef* config, uint8_t enable, uint8_t enable_irq) {
+	config->SYS_tick_enable =			enable;
+	config->SYS_tick_interrupt_enable =	enable_irq;
+}
+void set_SYS_power_config(SYS_CLK_Config_TypeDef* config, SYS_Power_TypeDef power) {
+	config->SYS_power = power;
 }
 
 void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
@@ -185,10 +221,6 @@ void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
  					10: HSE
  					11: PLL																								*/
 			((config->MCO1_source << RCC_CFGR_MCO1_Pos) & RCC_CFGR_MCO1_Msk)			|								/*
-				I2SSRC: I2S clock source:
-					0: PLLI2S selected
-					1: External clock mapped on the I2S_CKIN pin used as I2S clock										*/
-			(config->I2S_external_clock * RCC_CFGR_I2SSRC)								|								/*
  				MCO1PRE: MCO1 prescaler:
  					0xx: no division
  					1xx: clock divided by (2 + xx)																		*/
@@ -217,6 +249,7 @@ void sys_clock_init(SYS_CLK_Config_TypeDef* config) {
 	// set IRQ priority
 	SCB->SHP[(SysTick_IRQn & 0xFUL) - 4UL] = ((((1UL << __NVIC_PRIO_BITS) - 1UL) << (8U - __NVIC_PRIO_BITS)) & 0xFFUL);
 }
+
 
 /*!< misc */
 void delay_ms(uint64_t ms) {

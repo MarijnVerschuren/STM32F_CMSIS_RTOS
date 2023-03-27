@@ -94,33 +94,32 @@ typedef enum {
 
 
 typedef struct {
-	// RCC_PLL_CFGR config				: 22
+	// RCC_PLL_CFGR config
 	uint32_t PLL_M						: 6;
 	uint32_t PLL_N						: 9;
 	uint32_t PLL_P						: 2;  // PLL_P_TypeDef
 	uint32_t PLL_Q						: 4;  // (0, 1 are invalid)
 	uint32_t PLL_source					: 1;  // PLL_Source_TypeDef
-	// FLASH_ACR config					: 6
+	// FLASH_ACR config
 	uint32_t FLASH_latency				: 3;  // FLASH_LATENCY_TypeDef
 	uint32_t FLASH_prefetch				: 1;
 	uint32_t FLASH_instruction_cache	: 1;
 	uint32_t FLASH_data_cache			: 1;
-	// RCC_CFGR config					: 28
+	// RCC_CFGR config
 	uint32_t SYS_CLK_source				: 2;  // SYS_CLK_Source_TypeDef
 	uint32_t AHB_prescaler				: 4;  // AHB_CLK_Prescaler_TypeDef
 	uint32_t APB1_prescaler				: 3;  // APBx_CLK_Prescaler_TypeDef
 	uint32_t APB2_prescaler				: 3;  // APBx_CLK_Prescaler_TypeDef
 	uint32_t RTC_prescaler				: 5;
 	uint32_t MCO1_source				: 2;  // MCO1_CLK_Source_TypeDef
-	uint32_t I2S_external_clock			: 1;
 	uint32_t MCO1_prescaler				: 3;  // MCOx_CLK_Prescaler_TypeDef
 	uint32_t MCO2_prescaler				: 3;  // MCOx_CLK_Prescaler_TypeDef
 	uint32_t MCO2_source				: 2;  // MCO2_CLK_Source_TypeDef
-	// SYS_TICK config					: 80
+	// SYS_TICK config
 	uint32_t SYS_tick_enable			: 1;
 	uint32_t SYS_tick_interrupt_enable	: 1;
 	// power setting (power provided to the MCU)
-	uint32_t SYS_power					: 2;
+	uint32_t SYS_power					: 2;  // SYS_Power_TypeDef
 } SYS_CLK_Config_TypeDef;
 
 
@@ -138,11 +137,15 @@ extern volatile uint64_t tick;  // updated sys_tick
 
 /*!< interrupts */
 void SysTick_Handler(void);
-
 /*!< init / enable / disable */
 SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void);
+void set_SYS_PLL_config(SYS_CLK_Config_TypeDef* config, uint8_t M, uint16_t N, PLL_P_TypeDef P, uint8_t Q, PLL_Source_TypeDef PLL_src);
+void set_SYS_FLASH_config(SYS_CLK_Config_TypeDef* config, FLASH_LATENCY_TypeDef latency, uint8_t prefetch, uint8_t enable_icache, uint8_t enable_dcache);
+void set_SYS_CLOCK_config(SYS_CLK_Config_TypeDef* config, SYS_CLK_Source_TypeDef SYS_src, AHB_CLK_Prescaler_TypeDef AHB_prescaler, APBx_CLK_Prescaler_TypeDef APB1_prescaler, APBx_CLK_Prescaler_TypeDef APB2_prescaler, uint8_t RTC_prescaler);
+void set_SYS_MCO_config(SYS_CLK_Config_TypeDef* config, MCO1_CLK_Source_TypeDef MCO1_src, MCOx_CLK_Prescaler_TypeDef MCO1_prescaler, MCO2_CLK_Source_TypeDef MCO2_src, MCOx_CLK_Prescaler_TypeDef MCO2_prescaler);
+void set_SYS_tick_config(SYS_CLK_Config_TypeDef* config, uint8_t enable, uint8_t enable_irq);
+void set_SYS_power_config(SYS_CLK_Config_TypeDef* config, SYS_Power_TypeDef power);
 void sys_clock_init(SYS_CLK_Config_TypeDef* config);	// the config given might change when a config contradiction was solved
-// TODO: make it possible to disable the PLL and HSE
 
 /*!< misc */
 void delay_ms(uint64_t ms);

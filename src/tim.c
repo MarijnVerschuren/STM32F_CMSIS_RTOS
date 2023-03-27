@@ -13,39 +13,43 @@ static uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 	return irqn;
 }
 
+
 /*!< variables */
 // volatile uint64_t ticks = 0;
+
 
 /*!< irq */
 //extern void SysTick_IRQHandler(void) { ticks++; }
 
+
 /*!< init / disable */
-void enable_TIM_clock(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit, uint8_t update_interrupt) {
+void enable_TIM(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit) {
 	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR |= (0b1u << ((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u)); }
 	//RCC_TypeDef* ptr = RCC;
 	tim->PSC = prescaler;
 	tim->ARR = limit;
-	if (update_interrupt) { tim->DIER |= TIM_DIER_UIE; }  // enable update interrupt (rollover interrupt)
 }
-void disable_TIM_clock(TIM_TypeDef* tim) {
+void disable_TIM(TIM_TypeDef* tim) {
 	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR &= ~(0b1u << ((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u)); }
 }
 
 /*!< actions */
-void TIM_start(TIM_TypeDef* tim) { tim->CR1 |= TIM_CR1_CEN; }
-void TIM_stop(TIM_TypeDef* tim) { tim->CR1 &= ~TIM_CR1_CEN; }
+void start_TIM(TIM_TypeDef* tim)	{ tim->CR1 |= TIM_CR1_CEN; }
+void stop_TIM(TIM_TypeDef* tim)		{ tim->CR1 &= ~TIM_CR1_CEN; }
 
 /*!< irq */
 void start_TIM_update_irq(TIM_TypeDef* tim) {
 	uint32_t irqn = TIM_to_update_IRQn(tim);
 	NVIC->ISER[((irqn) >> 5UL)] = (uint32_t)(1UL << ((irqn) & 0x1FUL));  // NVIC_EnableIRQ
+	tim->DIER |= TIM_DIER_UIE;
 }
 void stop_TIM_update_irq(TIM_TypeDef* tim) {
 	uint32_t irqn = TIM_to_update_IRQn(tim);
 	NVIC->ICER[((irqn) >> 5UL)] = (uint32_t)(1UL << ((irqn) & 0x1FUL));  // NVIC_DisableIRQ
 	__DSB(); __ISB();  // flush processor pipeline before fetching
+	tim->DIER &= ~TIM_DIER_UIE;
 }
 // these are only for TIM1 but this can change on other generations
 void start_TIM_capture_compare_irq(TIM_TypeDef* tim) {
