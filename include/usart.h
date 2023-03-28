@@ -16,6 +16,7 @@
  *     pin_number					: 4;  // LSB
  * */
 typedef enum {
+	USART_PIN_DISABLE =	0x000,
 	// USART1
 	USART1_CLK_A8 =		0x708,
 	USART1_TX_A9 =		0x709,
@@ -44,13 +45,16 @@ typedef enum {
 	USART6_RX_C7 =		0x827,
 	USART6_CLK_C8 =		0x828
 } USART_GPIO_TypeDef;
+typedef enum {
+	USART_OVERSAMPLING_16 =	0,
+	USART_OVERSAMPLING_8 =	1,
+} USART_oversampling_TypeDef;
 
 
 /*!< init / enable / disable */
 void disable_USART(USART_TypeDef* usart);
+void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, USART_oversampling_TypeDef oversampling);
 void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx);
-// TODO: config_USART for CLK, CTS, RTS
-// TODO: https://mcturra2000.wordpress.com/2021/11/19/using-cmsis-to-read-write-on-uart-on-stm32f4/
 /*!< input / output */
 uint8_t USART_transmit(USART_TypeDef* usart, uint8_t byte, uint32_t timeout);
 uint8_t USART_receive(USART_TypeDef* usart, uint8_t* byte, uint32_t timeout);

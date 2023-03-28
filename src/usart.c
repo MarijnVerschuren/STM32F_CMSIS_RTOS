@@ -20,7 +20,8 @@ void disable_USART(USART_TypeDef* usart) {
 	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)usart ^ APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)usart ^ APB1PERIPH_BASE) >> 10u)); }
 }
-void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx) {
+
+void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, USART_oversampling_TypeDef oversampling) {
 	uint8_t tx_af = (tx >> 8);
 	uint8_t rx_af = (rx >> 8);
 	// arguments passed to the int_to_port function are filtered to be <= 0x7
@@ -28,28 +29,23 @@ void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USAR
 	GPIO_TypeDef* rx_port = int_to_GPIO(rx >> 4);
 	tx &= 0xf; rx &= 0xf;
 	// config pins
-	config_GPIO(tx_port, tx, GPIO_alt_func, GPIO_very_high_speed, GPIO_no_pull, GPIO_push_pull, tx_af);
-	config_GPIO(rx_port, rx, GPIO_alt_func, GPIO_very_high_speed, GPIO_no_pull, GPIO_push_pull, rx_af);
+	fconfig_GPIO(tx_port, tx, GPIO_alt_func, GPIO_no_pull, GPIO_push_pull, GPIO_very_high_speed, tx_af);
+	fconfig_GPIO(rx_port, rx, GPIO_alt_func, GPIO_no_pull, GPIO_push_pull, GPIO_very_high_speed, rx_af);
 	// config uart registers
-	uint16_t uart_div = UART_division(uart, baud);
-	//uart_div *= over8 + 1;   // TODO: is this needed for oversampling 8? (default=16)
+	uint16_t uart_div = UART_division(uart, baud) * (oversampling + 1);
 
 	enable_USART_clock(uart);
 
-	uart->BRR = (
-		((uart_div / 16) << USART_BRR_DIV_Mantissa_Pos ) |
-		((uart_div % 16) << USART_BRR_DIV_Fraction_Pos )
-	);
-	/*
-	uart->BRR = (
-		((uart_div / 16) << USART_BRR_DIV_Mantissa_Pos ) |
-		((uart_div % (16 >> over8)) << USART_BRR_DIV_Fraction_Pos )
-	);*/
+	uart->BRR = ((uart_div & 0xfff0) | ((uart_div & 0xf) >> oversampling));
 	uart->CR1 = (
 		USART_CR1_RE |
 		USART_CR1_TE |
 		USART_CR1_UE
 	);
+}
+
+void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx) {
+	fconfig_UART(uart, baud, tx, rx, USART_OVERSAMPLING_16);
 }
 
 

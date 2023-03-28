@@ -34,16 +34,19 @@ void reset_GPIO(GPIO_TypeDef* port, uint8_t pin) {
 	port->PUPDR &= ~(0b11u << (pin << 1u));
 	port->OTYPER &= (0b1u << pin);
 }
-void config_GPIO(GPIO_TypeDef* port, uint8_t pin, GPIO_MODE_TypeDef mode, GPIO_SPEED_TypeDef speed, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef out_type, uint8_t alternate_function) {
+void fconfig_GPIO(GPIO_TypeDef* port, uint8_t pin, GPIO_MODE_TypeDef mode, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef output_type, GPIO_SPEED_TypeDef speed, uint8_t alternate_function) {
 	enable_GPIO(port);
 	reset_GPIO(port, pin);
 	port->MODER |= (mode << (pin << 1u));
 	port->OSPEEDR |= (speed << (pin << 1u));
 	port->PUPDR |= (pull << (pin << 1u));
-	port->OTYPER |= out_type << pin;
+	port->OTYPER |= output_type << pin;
 	uint8_t pos = ((pin & 0x7) << 2);
 	port->AFR[pin >> 3] &= ~(0xf << pos);							// clear AFR entry
 	port->AFR[pin >> 3] |= ((alternate_function & 0xf) << pos);		// set AFR entry
+}
+void config_GPIO(GPIO_TypeDef* port, uint8_t pin, GPIO_MODE_TypeDef mode, GPIO_PULL_TypeDef pull, GPIO_OT_TypeDef output_type) {
+	fconfig_GPIO(port, pin, mode, pull, output_type, GPIO_low_speed, 0);
 }
 
 
