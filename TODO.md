@@ -7,3 +7,8 @@
 > * add config locks
 > * use the fpu: https://gitlab.com/mcturra2000/rpi/-/blob/master/stm32f411re/cmsis/12-fpu/main.c
 > * External counters? (tim.h)
+> ## DOCS
+> * what does BSRR do
+> * what is the difference between speed modes
+> ## VISUAL
+> * TypeDef -> _t

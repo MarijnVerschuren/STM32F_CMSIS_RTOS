@@ -10,15 +10,15 @@ static uint16_t UART_division(USART_TypeDef* uart, uint32_t baud) {
 	else														{ return APB1_clock_frequency / baud; }
 }
 static void enable_USART_clock(USART_TypeDef* usart) {
-	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart ^ APB2PERIPH_BASE) >> 10u)); }
-	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)usart ^ APB1PERIPH_BASE) >> 10u)); }
+	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
+	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
 
 
 /*!< init / enable / disable */
 void disable_USART(USART_TypeDef* usart) {
-	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)usart ^ APB2PERIPH_BASE) >> 10u)); }
-	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)usart ^ APB1PERIPH_BASE) >> 10u)); }
+	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
+	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
 
 void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, USART_oversampling_TypeDef oversampling) {
@@ -37,7 +37,7 @@ void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USA
 	enable_USART_clock(uart);
 
 	uart->BRR = ((uart_div & 0xfff0) | ((uart_div & 0xf) >> oversampling));
-	uart->CR1 = (
+	uart->CR1 = (  // TODO: disable
 		USART_CR1_RE |
 		USART_CR1_TE |
 		USART_CR1_UE

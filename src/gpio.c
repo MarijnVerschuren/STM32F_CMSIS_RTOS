@@ -55,7 +55,7 @@ void GPIO_write(GPIO_TypeDef* port, uint8_t pin, uint8_t data) {
 	port->BSRR |= (1u << (pin << !data));
 }
 void GPIO_toggle(GPIO_TypeDef* port, uint8_t pin) {
-	port->ODR ^= (1u << pin);
+	port->ODR ^= (1u << pin);  // TODO: BSRR
 }
 
 
