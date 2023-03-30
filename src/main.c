@@ -4,6 +4,7 @@
 #include "tim.h"	// all timers and delays are defined here
 #include "sys.h"
 #include "usart.h"
+#include "pwm.h"
 
 
 #ifdef STM32F4xx
@@ -53,10 +54,30 @@ int main(void) {
 	config_UART(USART2, 115200, USART2_TX_A2, USART2_RX_A3);
 	config_UART(USART6, 115200, USART6_TX_A11, USART6_RX_A12);
 
+	//config_PWM(TIM4, 4, TIM4_CH4_B9, 100000, 100, 0);
+	fconfig_GPIO(GPIOB, 9, GPIO_alt_func, GPIO_no_pull, GPIO_push_pull, GPIO_high_speed, 2);
+	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+	TIM4->CCMR2 &= ~TIM_CCMR2_CC4S;
+	TIM4->CCER &= ~TIM_CCER_CC4P;
+	TIM4->CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1;
+	TIM4->PSC = 50;
+	TIM4->ARR = 2000;
+	TIM4->CCMR2 |= TIM_CCMR2_OC4PE;
+	TIM4->CR1 |= TIM_CR1_ARPE;
+	TIM4->CCER |= TIM_CCER_CC4E;
+	TIM4->CR1 |= TIM_CR1_CEN;
+
+
+	TIM4->CCR4 = 1000;
+	int8_t add = 1;
 	for(;;) {
-		USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
+		/*USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
 		USART_print(USART2, "hello USART2!!?", 100);	delay_ms(333);
-		USART_print(USART6, "hello USART6!!!?", 100);	delay_ms(333);
+		USART_print(USART6, "hello USART6!!!?", 100);	delay_ms(333);*/
+		/*TIM4->CCR4 += add;
+		if (TIM4->CCR4 > 2350)		{ add = -1; }
+		else if(TIM4->CCR4 < 1350)	{ add = 1; }
+		delay_ms(5);*/
 	}
 }
 

@@ -1,6 +1,7 @@
 > # TODO
 > * add more options to fconfig_UART
-> * add config_USART
+> * make a structure for alternate pin defines so that it can be used for USART, TIM an all other devices
+> 
 > * make it possible to disable the PLL and HSE
 > * make use of the code stored in comments in "main.h"
 > * implement printf: https://gitlab.com/mcturra2000/rpi/-/blob/master/stm32f411re/cmsis/printf.c https://gitlab.com/mcturra2000/rpi/-/blob/master/stm32f411re/cmsis/printf.h
@@ -12,3 +13,6 @@
 > * what is the difference between speed modes
 > ## VISUAL
 > * TypeDef -> _t
+> ## CAR
+> * connection guard
+> * drive back in self driving mode on disconnect

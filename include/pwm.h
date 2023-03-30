@@ -75,7 +75,8 @@ typedef enum {
 } TIM_channel_TypeDef;
 // TODO: https://www.youtube.com/watch?v=f6_Jnzsnwgs
 
-void config_PWM(TIM_TypeDef* tim, TIM_channel_TypeDef channel, PWM_GPIO_TypeDef pin, uint32_t prescaler, uint32_t period, uint8_t polarity);
+
+void config_PWM(TIM_TypeDef* tim, TIM_channel_TypeDef channel, PWM_GPIO_TypeDef pin, uint32_t prescaler, uint32_t period, uint8_t invert_polarity);
 
 
 
