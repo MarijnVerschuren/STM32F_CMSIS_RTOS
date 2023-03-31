@@ -13,6 +13,26 @@ static void enable_USART_clock(USART_TypeDef* usart) {
 	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
+static void USART_GPIO_to_args(USART_GPIO_TypeDef usart_pin, USART_TypeDef** usart, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
+	(*usart) =				id_to_USART(*((dev_id_t*)(&usart_pin + 2)));
+	(*alternate_function) =	(usart_pin >> 8) & 0xfu;
+	(*port) =				int_to_GPIO(usart_pin >> 4);
+	(*pin) =				usart_pin & 0xfu;
+}
+
+
+/*!< misc */
+dev_id_t USART_to_id(USART_TypeDef* usart) {
+	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL) {
+		return (dev_id_t){(uint32_t)(usart - APB2PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB2};
+	}	return (dev_id_t){(uint32_t)(usart - APB1PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB1};
+}
+USART_TypeDef* id_to_USART(dev_id_t id) {
+	if (id.reg == DEV_CLOCK_ID_APB2) {
+		return (USART_TypeDef*)((id.num << 10) + APB2PERIPH_BASE);
+	} else if (id.reg != DEV_CLOCK_ID_APB1) { return nullptr; }
+	return (USART_TypeDef*)((id.num << 10) + APB1PERIPH_BASE);
+}
 
 
 /*!< init / enable / disable */
@@ -22,8 +42,8 @@ void disable_USART(USART_TypeDef* usart) {
 }
 
 void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, USART_oversampling_TypeDef oversampling) {
-	uint8_t tx_af = (tx >> 8);
-	uint8_t rx_af = (rx >> 8);
+	uint8_t tx_af = (tx >> 8) & 0xf;
+	uint8_t rx_af = (rx >> 8) & 0xf;
 	// arguments passed to the int_to_port function are filtered to be <= 0x7
 	GPIO_TypeDef* tx_port = int_to_GPIO(tx >> 4);
 	GPIO_TypeDef* rx_port = int_to_GPIO(rx >> 4);

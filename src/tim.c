@@ -22,6 +22,20 @@ static uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 //extern void SysTick_IRQHandler(void) { ticks++; }
 
 
+/*!< misc */
+dev_id_t TIM_to_id(TIM_TypeDef* tim) {
+	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL) {
+		return (dev_id_t){(uint32_t)(tim - APB2PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB2};
+	}	return (dev_id_t){(uint32_t)(tim - AHB1PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB1};
+}
+TIM_TypeDef* id_to_TIM(dev_id_t id) {
+	if (id.reg == DEV_CLOCK_ID_APB2) {
+		return (TIM_TypeDef*)((id.num << 10u) + APB2PERIPH_BASE);
+	} else if (id.reg != DEV_CLOCK_ID_APB1) { return nullptr; }
+	return (TIM_TypeDef*)((id.num << 10u) + APB1PERIPH_BASE);
+}
+
+
 /*!< init / disable */
 void enable_TIM(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit) {
 	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }

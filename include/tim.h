@@ -6,6 +6,9 @@
 #include "main.h"
 
 
+/*!< misc */
+dev_id_t TIM_to_id(TIM_TypeDef* tim);
+TIM_TypeDef* id_to_TIM(dev_id_t id);
 /*!< init / enable / disable */
 void enable_TIM(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit);
 void disable_TIM(TIM_TypeDef* tim);

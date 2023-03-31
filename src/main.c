@@ -67,17 +67,11 @@ int main(void) {
 	TIM4->CCER |= TIM_CCER_CC4E;
 	TIM4->CR1 |= TIM_CR1_CEN;
 
-
 	TIM4->CCR4 = 1000;
-	int8_t add = 1;
 	for(;;) {
 		/*USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
 		USART_print(USART2, "hello USART2!!?", 100);	delay_ms(333);
 		USART_print(USART6, "hello USART6!!!?", 100);	delay_ms(333);*/
-		/*TIM4->CCR4 += add;
-		if (TIM4->CCR4 > 2350)		{ add = -1; }
-		else if(TIM4->CCR4 < 1350)	{ add = 1; }
-		delay_ms(5);*/
 	}
 }
 
