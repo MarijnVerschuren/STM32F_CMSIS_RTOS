@@ -4,6 +4,7 @@
 #ifndef STM32F_GPIO_H
 #define STM32F_GPIO_H
 #include "main.h"
+#include "dev.h"
 
 
 typedef enum {

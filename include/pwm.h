@@ -13,6 +13,8 @@
 /* data layout:
  * struct:
  *		dev_id						: 8;  // MSB
+ *			num							: 5;	// MSB
+ *			clock						: 3;	// LSB
  *		misc						: 4;
  *			channel 					: 2;	// MSB
  *			reserved					: 2;	// LSB

@@ -4,8 +4,8 @@
 #include "exti.h"
 
 
-/*!< static functions (hidden) */
-static uint32_t EXTI_line_to_IRQn(uint8_t EXTI_line) {
+/*!< static */
+static inline uint32_t EXTI_line_to_IRQn(uint8_t EXTI_line) {
 	uint32_t irqn = (EXTI_line & 0xf) + EXTI0_IRQn;
 	if (irqn > 10) {
 		if (irqn < 16)	{ irqn = EXTI9_5_IRQn; }

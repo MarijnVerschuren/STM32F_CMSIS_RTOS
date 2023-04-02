@@ -1,8 +1,9 @@
 > # TODO
-> * test new pin def in pwm.c
-> * finish USART with new pin def
 > * make general purpose id_to_dev and dev_to_id functions
-> 
+> * make it possible to enable all usart interrupts 
+> * make code that spits up multipurpose interrupts
+>
+> * create function for other timer pins
 > * add more options to fconfig_UART
 > * add complementary support to PWM
 > * move non PWM pins from pwm.h to their 

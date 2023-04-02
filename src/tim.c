@@ -4,8 +4,8 @@
 #include "tim.h"
 
 
-/*!< static functions (hidden) */
-static uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
+/*!< static */
+static inline uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 	if (tim == TIM1)											{ return TIM1_UP_TIM10_IRQn; }
 	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ return (((uint32_t)(tim - APB2PERIPH_BASE) >> 10u) & 0xfu) + TIM1_BRK_TIM9_IRQn; }
 	uint32_t irqn = (((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u) & 0xfu) + TIM2_IRQn;
@@ -20,20 +20,6 @@ static uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 
 /*!< irq */
 //extern void SysTick_IRQHandler(void) { ticks++; }
-
-
-/*!< misc */
-dev_id_t TIM_to_id(TIM_TypeDef* tim) {
-	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL) {
-		return (dev_id_t){(uint32_t)(tim - APB2PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB2};
-	}	return (dev_id_t){(uint32_t)(tim - AHB1PERIPH_BASE) >> 10u, DEV_CLOCK_ID_APB1};
-}
-TIM_TypeDef* id_to_TIM(dev_id_t id) {
-	if (id.reg == DEV_CLOCK_ID_APB2) {
-		return (TIM_TypeDef*)((id.num << 10u) + APB2PERIPH_BASE);
-	} else if (id.reg != DEV_CLOCK_ID_APB1) { return nullptr; }
-	return (TIM_TypeDef*)((id.num << 10u) + APB1PERIPH_BASE);
-}
 
 
 /*!< init / disable */

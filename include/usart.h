@@ -12,6 +12,8 @@
 /* data layout:
  * struct:
  *		dev_id						: 8;  // MSB
+ *			num							: 5;	// MSB
+ *			clock						: 3;	// LSB
  *		misc						: 4;  // (reserved)
  *		alternate_function_number	: 4;
  *		port_number					: 4;
@@ -58,11 +60,13 @@ dev_id_t USART_to_id(USART_TypeDef* usart);
 USART_TypeDef* id_to_USART(dev_id_t id);
 /*!< init / enable / disable */
 void disable_USART(USART_TypeDef* usart);
-void fconfig_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, USART_oversampling_TypeDef oversampling);
-void config_UART(USART_TypeDef* uart, uint32_t baud, USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx);
+void fconfig_UART(USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, uint32_t baud, USART_oversampling_TypeDef oversampling);
+void config_UART(USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, uint32_t baud);
+/*!< irq */
+void start_USART_receive_irq(USART_TypeDef* usart, uint8_t* buffer, uint32_t size, uint8_t fifo);
+void stop_USART_receive_irq(USART_TypeDef* usart);
+void disable_USART_irq(USART_TypeDef* usart);
 /*!< input / output */
-uint8_t USART_transmit(USART_TypeDef* usart, uint8_t byte, uint32_t timeout);
-uint8_t USART_receive(USART_TypeDef* usart, uint8_t* byte, uint32_t timeout);
 uint32_t USART_write(USART_TypeDef* usart, const uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint32_t USART_read(USART_TypeDef* usart, uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint8_t USART_print(USART_TypeDef* usart, char* str, uint32_t timeout);

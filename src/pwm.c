@@ -6,8 +6,9 @@
 
 
 /*!< static */
-static void PWM_GPIO_to_args(PWM_GPIO_TypeDef pwm_pin, TIM_TypeDef** tim, uint8_t* channel, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
-	(*tim) =				id_to_TIM(*((dev_id_t*)(&pwm_pin + 2)));
+static inline void PWM_GPIO_to_args(uint32_t pwm_pin, TIM_TypeDef** tim, uint8_t* channel, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
+	uint8_t dev_id =		(pwm_pin >> 16);
+	(*tim) =				id_to_dev(*((dev_id_t*)&dev_id));
 	(*channel) =			(pwm_pin >> 14) & 0x3u;
 	(*alternate_function) =	(pwm_pin >> 8) & 0xfu;
 	(*port) =				int_to_GPIO(pwm_pin >> 4);
@@ -20,7 +21,17 @@ void config_PWM(PWM_GPIO_TypeDef pwm_pin, uint32_t prescaler, uint32_t period) {
 	TIM_TypeDef* tim; GPIO_TypeDef* port;	// registers
 	uint8_t channel, pin, af;				// params
 	PWM_GPIO_to_args(pwm_pin, &tim, &channel, &af, &port, &pin);
-
+	enable_TIM(tim, prescaler, period);
+	(&tim->CCMR1)[channel >> 1] &=	~(0x3u << ((channel & 0b1u) << 3));	// clear register
+	tim->CCER &=					~(0b1u << (1 + (channel << 2)));	// default polarity
+	(&tim->CCMR1)[channel >> 1] |=	(
+		(0b110 << (4 + ((channel & 0b1u) << 3))) |						// set PWM mode
+		(0b1u << (3 + ((channel & 0b1u) << 3)))							// enable preload
+	);
+	tim->CR1 |= TIM_CR1_ARPE;											// enable auto-reload preload
+	tim->CCER |= (0b1u << (channel << 2));								// enable capture compare
+	(&tim->CCR1)[channel] = 0;											// set duty cycle to 0
+	tim->CR1 |= TIM_CR1_CEN;											// start timer
 }
 /*{
 	uint8_t af = (pin >> 8);

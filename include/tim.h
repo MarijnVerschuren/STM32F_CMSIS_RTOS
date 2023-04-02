@@ -4,6 +4,7 @@
 #ifndef STM32F_TIM_H
 #define STM32F_TIM_H
 #include "main.h"
+#include "dev.h"
 
 
 /*!< misc */
