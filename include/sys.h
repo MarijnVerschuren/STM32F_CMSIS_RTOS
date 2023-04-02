@@ -13,12 +13,12 @@ typedef enum {
 	PLL_P_DIV4 = 0b01,
 	PLL_P_DIV6 = 0b10,
 	PLL_P_DIV8 = 0b11
-} PLL_P_TypeDef;
+} PLL_P_t;
 
 typedef enum {
 	PLL_SRC_HSI = 0b0,
 	PLL_SRC_HSE = 0b1
-} PLL_Source_TypeDef;
+} PLL_Source_t;
 
 typedef enum {
 	//================================================================================================================|
@@ -34,13 +34,13 @@ typedef enum {
 	FLASH_LATENCY7 =         0b110,  //           -           144 < H_CLK ≤ 168  108 < H_CLK ≤ 120  96 < H_CLK ≤ 112  |
 	FLASH_LATENCY8 =         0b111   //           -                  -           120 < H_CLK ≤ 138  112 < H_CLK ≤ 128 |
 	//================================================================================================================|
-} FLASH_LATENCY_TypeDef;
+} FLASH_LATENCY_t;
 
 typedef enum {
 	SYS_CLK_SRC_HSI = 0b00,
 	SYS_CLK_SRC_HSE = 0b01,
 	SYS_CLK_SRC_PLL = 0b10
-} SYS_CLK_Source_TypeDef;
+} SYS_CLK_Source_t;
 
 typedef enum {
 	AHB_CLK_NO_DIV =	0b0000,
@@ -52,7 +52,7 @@ typedef enum {
 	AHB_CLK_DIV128 =	0b1101,
 	AHB_CLK_DIV256 =	0b1110,
 	AHB_CLK_DIV512 =	0b1111
-} AHB_CLK_Prescaler_TypeDef;
+} AHB_CLK_Prescaler_t;
 
 typedef enum {
 	APBx_CLK_NO_DIV =	0b000,
@@ -60,21 +60,21 @@ typedef enum {
 	APBx_CLK_DIV4 =		0b101,
 	APBx_CLK_DIV8 =		0b110,
 	APBx_CLK_DIV16 =	0b111
-} APBx_CLK_Prescaler_TypeDef;
+} APBx_CLK_Prescaler_t;
 
 typedef enum {
 	MCO1_CLK_SRC_HSI = 0b00,
 	MCO1_CLK_SRC_LSE = 0b01,
 	MCO1_CLK_SRC_HSE = 0b10,
 	MCO1_CLK_SRC_PLL = 0b11
-} MCO1_CLK_Source_TypeDef;
+} MCO1_CLK_Source_t;
 
 typedef enum {
 	MCO2_CLK_SRC_SYS_CLK =	0b00,
 	MCO2_CLK_SRC_PLL_I2S =	0b01,
 	MCO2_CLK_SRC_HSE =		0b10,
 	MCO2_CLK_SRC_PLL =		0b11
-} MCO2_CLK_Source_TypeDef;
+} MCO2_CLK_Source_t;
 
 typedef enum {
 	MCOx_CLK_NO_DIV =	0b000,
@@ -82,7 +82,7 @@ typedef enum {
 	MCOx_CLK_DIV3 =		0b101,
 	MCOx_CLK_DIV4 =		0b110,
 	MCOx_CLK_DIV5 =		0b111
-} MCOx_CLK_Prescaler_TypeDef;
+} MCOx_CLK_Prescaler_t;
 
 typedef enum {
 	SYS_power_1v7 = 0,		// 1v71	- 2v1
@@ -90,7 +90,7 @@ typedef enum {
 	SYS_power_2v4 = 2,		// 2v4	- 2v7
 	SYS_power_2v7 = 3,		// 2v7	- 3v6
 	SYS_power_nominal = 3,
-} SYS_Power_TypeDef;
+} SYS_Power_t;
 
 
 typedef struct {
@@ -120,7 +120,7 @@ typedef struct {
 	uint32_t SYS_tick_interrupt_enable	: 1;
 	// power setting (power provided to the MCU)
 	uint32_t SYS_power					: 2;  // SYS_Power_TypeDef
-} SYS_CLK_Config_TypeDef;
+} SYS_CLK_Config_t;
 
 
 /*!< variables */   // values are updated when calling sys_clock_init
@@ -138,14 +138,14 @@ extern volatile uint64_t tick;  // updated sys_tick
 /*!< interrupts */
 void SysTick_Handler(void);
 /*!< init / enable / disable */
-SYS_CLK_Config_TypeDef* new_SYS_CLK_config(void);
-void set_SYS_PLL_config(SYS_CLK_Config_TypeDef* config, uint8_t M, uint16_t N, PLL_P_TypeDef P, uint8_t Q, PLL_Source_TypeDef PLL_src);
-void set_SYS_FLASH_config(SYS_CLK_Config_TypeDef* config, FLASH_LATENCY_TypeDef latency, uint8_t prefetch, uint8_t enable_icache, uint8_t enable_dcache);
-void set_SYS_CLOCK_config(SYS_CLK_Config_TypeDef* config, SYS_CLK_Source_TypeDef SYS_src, AHB_CLK_Prescaler_TypeDef AHB_prescaler, APBx_CLK_Prescaler_TypeDef APB1_prescaler, APBx_CLK_Prescaler_TypeDef APB2_prescaler, uint8_t RTC_prescaler);
-void set_SYS_MCO_config(SYS_CLK_Config_TypeDef* config, MCO1_CLK_Source_TypeDef MCO1_src, MCOx_CLK_Prescaler_TypeDef MCO1_prescaler, MCO2_CLK_Source_TypeDef MCO2_src, MCOx_CLK_Prescaler_TypeDef MCO2_prescaler);
-void set_SYS_tick_config(SYS_CLK_Config_TypeDef* config, uint8_t enable, uint8_t enable_irq);
-void set_SYS_power_config(SYS_CLK_Config_TypeDef* config, SYS_Power_TypeDef power);
-void sys_clock_init(SYS_CLK_Config_TypeDef* config);	// the config given might change when a config contradiction was solved
+SYS_CLK_Config_t* new_SYS_CLK_config(void);
+void set_SYS_PLL_config(SYS_CLK_Config_t* config, uint8_t M, uint16_t N, PLL_P_t P, uint8_t Q, PLL_Source_t PLL_src);
+void set_SYS_FLASH_config(SYS_CLK_Config_t* config, FLASH_LATENCY_t latency, uint8_t prefetch, uint8_t enable_icache, uint8_t enable_dcache);
+void set_SYS_CLOCK_config(SYS_CLK_Config_t* config, SYS_CLK_Source_t SYS_src, AHB_CLK_Prescaler_t AHB_prescaler, APBx_CLK_Prescaler_t APB1_prescaler, APBx_CLK_Prescaler_t APB2_prescaler, uint8_t RTC_prescaler);
+void set_SYS_MCO_config(SYS_CLK_Config_t* config, MCO1_CLK_Source_t MCO1_src, MCOx_CLK_Prescaler_t MCO1_prescaler, MCO2_CLK_Source_t MCO2_src, MCOx_CLK_Prescaler_t MCO2_prescaler);
+void set_SYS_tick_config(SYS_CLK_Config_t* config, uint8_t enable, uint8_t enable_irq);
+void set_SYS_power_config(SYS_CLK_Config_t* config, SYS_Power_t power);
+void sys_clock_init(SYS_CLK_Config_t* config);	// the config given might change when a config contradiction was solved
 
 /*!< misc */
 void delay_ms(uint64_t ms);

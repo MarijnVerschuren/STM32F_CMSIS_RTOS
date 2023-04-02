@@ -36,6 +36,6 @@ typedef enum {
 	I2C3_SDA_C9 =		0x000429,
 	I2C3_SDA_B4 =		0x000914,
 	I2C3_SDA_B8 =		0x000918,
-} I2C_GPIO_TypeDef;
+} I2C_GPIO_t;
 
 #endif //STM32F_CMSIS_I2C_H

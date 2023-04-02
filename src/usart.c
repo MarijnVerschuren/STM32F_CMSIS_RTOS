@@ -13,7 +13,7 @@ static inline void enable_USART_clock(USART_TypeDef* usart) {
 	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
-static inline void USART_GPIO_to_args(USART_GPIO_TypeDef usart_pin, USART_TypeDef** usart, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
+static inline void USART_GPIO_to_args(USART_GPIO_t usart_pin, USART_TypeDef** usart, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
 	uint8_t dev_id =		(usart_pin >> 16);
 	(*usart) =				id_to_dev(*((dev_id_t*)&dev_id));
 	(*alternate_function) =	(usart_pin >> 8) & 0xfu;
@@ -24,33 +24,31 @@ static inline void USART_GPIO_to_args(USART_GPIO_TypeDef usart_pin, USART_TypeDe
 
 /*!< irq vars */
 typedef struct {
-	uint8_t* rx_buf;
-	uint32_t rx_size;
-	uint32_t rx_index;
-	uint32_t rx_fifo;
-} USART_buf_Typedef;
+	io_buffer_t*	rx_buf;
+	uint32_t		rx_fifo;
+} USART_IRQ_IO_t;
 
-USART_buf_Typedef usart_buf_1;
-USART_buf_Typedef usart_buf_2;
-USART_buf_Typedef usart_buf_6;
+USART_IRQ_IO_t usart_buf_1;
+USART_IRQ_IO_t usart_buf_2;
+USART_IRQ_IO_t usart_buf_6;
 
 
 /*!< irq handlers */
-void USART_irq_handler(USART_TypeDef* usart, USART_buf_Typedef* buf) {
-	if(usart->SR & USART_SR_RXNE && buf->rx_buf) {
-		buf->rx_buf[buf->rx_index] = usart->DR;
-		buf->rx_index += 1;
-		if (buf->rx_index >= buf->rx_size) {
-			if (buf->rx_fifo) { buf->rx_index = 0; return; }	// reset offset
+void USART_irq_handler(USART_TypeDef* usart, USART_IRQ_IO_t* io) {
+	if(usart->SR & USART_SR_RXNE && io->rx_buf->ptr) {
+		((uint8_t*)io->rx_buf->ptr)[io->rx_buf->i_index] = usart->DR;
+		io->rx_buf->i_index += 1;
+		if (io->rx_buf->i_index >= io->rx_buf->size) {
+			if (io->rx_fifo) { io->rx_buf->i_index = 0; return; }	// reset offset
 			usart->CR1 &= ~USART_CR1_RXNEIE;					// turn off irq
 		}
 	}
 	// TODO: other events
 }
 
-void USART1_IRQHandler(void) { USART_irq_handler(USART1, &usart_buf_1); }
-void USART2_IRQHandler(void) { USART_irq_handler(USART2, &usart_buf_2); }
-void USART6_IRQHandler(void) { USART_irq_handler(USART6, &usart_buf_6); }
+extern void USART1_IRQHandler(void) { USART_irq_handler(USART1, &usart_buf_1); }
+extern void USART2_IRQHandler(void) { USART_irq_handler(USART2, &usart_buf_2); }
+extern void USART6_IRQHandler(void) { USART_irq_handler(USART6, &usart_buf_6); }
 
 
 /*!< init / enable / disable */
@@ -59,7 +57,7 @@ void disable_USART(USART_TypeDef* usart) {
 	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
 
-void fconfig_UART(USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, uint32_t baud, USART_oversampling_TypeDef oversampling) {
+void fconfig_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud, USART_oversampling_t oversampling) {
 	uint8_t			tx_enable = tx != USART_PIN_DISABLE, rx_enable = rx != USART_PIN_DISABLE;
 	if (!tx_enable && !rx_enable) { return; }  // quit when no pins are enabled
 	USART_TypeDef	*tx_uart = NULL,	*rx_uart = NULL,	*uart = NULL;
@@ -84,20 +82,19 @@ void fconfig_UART(USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, uint32_t baud, U
 	);
 }
 
-void config_UART(USART_GPIO_TypeDef tx, USART_GPIO_TypeDef rx, uint32_t baud) { fconfig_UART(tx, rx, baud, USART_OVERSAMPLING_16); }
+void config_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud) { fconfig_UART(tx, rx, baud, USART_OVERSAMPLING_16); }
 
 
 /*!< irq */
-void start_USART_receive_irq(USART_TypeDef* usart, uint8_t* buffer, uint32_t size, uint8_t fifo) {
+void start_USART_receive_irq(USART_TypeDef* usart, io_buffer_t* buffer, uint8_t fifo) {
 	usart->CR1 |= USART_CR1_RXNEIE;
 	uint32_t irqn;
-	USART_buf_Typedef* usart_buf;
+	USART_IRQ_IO_t* usart_buf;
 	if (usart == USART1)		{ irqn = USART1_IRQn; usart_buf = &usart_buf_1; }
 	else if (usart == USART2)	{ irqn = USART2_IRQn; usart_buf = &usart_buf_2; }
 	else if (usart == USART6)	{ irqn = USART6_IRQn; usart_buf = &usart_buf_6; }
 	else { return; }  // error
-	usart_buf->rx_buf = buffer;	usart_buf->rx_size = size;
-	usart_buf->rx_index = 0;	usart_buf->rx_fifo = fifo;
+	usart_buf->rx_buf = buffer;	usart_buf->rx_fifo = fifo;
 	NVIC->ISER[((irqn) >> 5UL)] = (uint32_t)(1UL << ((irqn) & 0x1FUL));  // NVIC_EnableIRQ
 }
 void stop_USART_receive_irq(USART_TypeDef* usart) { usart->CR1 &= ~USART_CR1_RXNEIE; }

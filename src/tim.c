@@ -23,7 +23,7 @@ static inline uint32_t TIM_to_update_IRQn(TIM_TypeDef* tim) {
 
 
 /*!< init / disable */
-void enable_TIM(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit) {
+void config_TIM(TIM_TypeDef* tim, uint32_t prescaler, uint32_t limit) {
 	if ((((uint32_t)tim) - APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << ((uint32_t)(tim - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR |= (0b1u << ((uint32_t)(tim - AHB1PERIPH_BASE) >> 10u)); }
 	//RCC_TypeDef* ptr = RCC;

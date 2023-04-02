@@ -72,18 +72,12 @@ typedef enum {
 	TIM10_CH1_B8 =		0x710318,
 	// TIM11
 	TIM11_CH1_B9 =		0x720319
-} PWM_GPIO_TypeDef;
-typedef enum {
-	TIMx_CH1 = 0x0,
-	TIMx_CH2 = 0x1,
-	TIMx_CH3 = 0x2,
-	TIMx_CH4 = 0x3,
-} TIM_channel_TypeDef;
+} PWM_GPIO_t;
 
 
 
 /*!< init / enable / disable */
-void config_PWM(PWM_GPIO_TypeDef pwm_pin, uint32_t prescaler, uint32_t period);
+void config_PWM(PWM_GPIO_t pwm_pin, uint32_t prescaler, uint32_t period);
 
 
 

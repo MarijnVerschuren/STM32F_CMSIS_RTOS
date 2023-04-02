@@ -17,11 +17,11 @@ static inline void PWM_GPIO_to_args(uint32_t pwm_pin, TIM_TypeDef** tim, uint8_t
 
 
 /*!< init / enable / disable */
-void config_PWM(PWM_GPIO_TypeDef pwm_pin, uint32_t prescaler, uint32_t period) {
+void config_PWM(PWM_GPIO_t pwm_pin, uint32_t prescaler, uint32_t period) {
 	TIM_TypeDef* tim; GPIO_TypeDef* port;	// registers
 	uint8_t channel, pin, af;				// params
 	PWM_GPIO_to_args(pwm_pin, &tim, &channel, &af, &port, &pin);
-	enable_TIM(tim, prescaler, period);
+	config_TIM(tim, prescaler, period);
 	(&tim->CCMR1)[channel >> 1] &=	~(0x3u << ((channel & 0b1u) << 3));	// clear register
 	tim->CCER &=					~(0b1u << (1 + (channel << 2)));	// default polarity
 	(&tim->CCMR1)[channel >> 1] |=	(
