@@ -11,13 +11,18 @@
 
 #define LED_GPIO_PORT GPIOC
 #define LED_PIN 13
+#define BTN_GPIO_PORT GPIOA
+#define BTN_PIN 0
 
 
 extern void TIM3_IRQHandler(void) {
 	TIM3->SR &= ~TIM_SR_UIF;
 	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
-
+extern void EXTI0_IRQHandler(void) {
+	EXTI->PR = EXTI_PR_PR0;
+	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+}
 
 int main(void) {
 	// sys_clock: 25Mhz / 15 * 120 / 2 = 100Mhz
@@ -28,23 +33,28 @@ int main(void) {
 	set_SYS_tick_config(sys_config, 1, 1);
 	sys_clock_init(sys_config); free(sys_config);
 
-	// GPIO output
+	// GPIO input / output
 	config_GPIO(LED_GPIO_PORT, LED_PIN, GPIO_output, GPIO_no_pull, GPIO_push_pull);
+	config_GPIO(BTN_GPIO_PORT, BTN_PIN, GPIO_input, GPIO_pull_up, GPIO_push_pull);
 	GPIO_write(LED_GPIO_PORT, LED_PIN, 1);  // led is active low
+
+	// EXTI
+	config_EXTI(BTN_PIN, BTN_GPIO_PORT, 1, 1);
+	start_EXTI(BTN_PIN);
 
 	// UART input
 	io_buffer_t* uart_buf = new_buffer(1024);
+	if (!uart_buf) { return -1; }  // allocation error
 	config_UART(USART1_TX_A9, USART1_RX_A10, 115200);
 	start_USART_receive_irq(USART1, uart_buf, 1);
 
 	// UART buffer polling interrupt
-	config_TIM(TIM3, 50000, 1000);  // 1s
+	config_TIM(TIM3, 50000, 10000);  // 10s
 	start_TIM_update_irq(TIM3);  // TIM2_IRQHandler
 	start_TIM(TIM3);
 
 	// PWM output
-	config_PWM(TIM2_CH1_A0, 100, 20000);		TIM2->CCR1 = 600;	// steering
-	config_PWM(TIM2_CH3_B10, 100, 20000);	TIM2->CCR3 = 1500;	// throttle
+	config_PWM(TIM2_CH1_A0, 100, 20000);		TIM2->CCR1 = 550;
 
 	// main loop
 	for(;;) {

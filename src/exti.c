@@ -21,7 +21,7 @@ void disable_EXTI(void) {
 
 
 /*!< enable / disable */
-void enable_EXTI(uint8_t EXTI_line, GPIO_TypeDef* EXTI_port, uint8_t falling_edge, uint8_t rising_edge) {
+void config_EXTI(uint8_t EXTI_line, GPIO_TypeDef* EXTI_port, uint8_t falling_edge, uint8_t rising_edge) {
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;  // enable EXTI
 	EXTI_line &= 0xfu;  // only allow values upto 15
 	uint8_t pos = (EXTI_line & 0x3u);  // index in the register [0:3]
