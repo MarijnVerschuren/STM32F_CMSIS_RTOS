@@ -30,4 +30,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/usart.c src/pwm.c include/i2c.h src/base.c)
+add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/usart.c src/pwm.c include/i2c.h src/base.c src/crc.c)

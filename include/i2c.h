@@ -4,7 +4,7 @@
 
 #ifndef STM32F_CMSIS_I2C_H
 #define STM32F_CMSIS_I2C_H
-
+#include "main.h"
 
 /* data layout:
  * struct:

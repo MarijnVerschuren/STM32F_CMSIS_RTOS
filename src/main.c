@@ -54,7 +54,7 @@ int main(void) {
 	start_TIM(TIM3);
 
 	// PWM output
-	config_PWM(TIM2_CH1_A0, 100, 20000);		TIM2->CCR1 = 550;
+	config_PWM(TIM4_CH4_B9, 100, 20000);		TIM4->CCR4 = 550;
 
 	// main loop
 	for(;;) {
