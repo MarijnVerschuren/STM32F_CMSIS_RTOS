@@ -62,7 +62,7 @@ void fconfig_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud, USART_oversam
 	if (!tx_enable && !rx_enable) { return; }  // quit when no pins are enabled
 	USART_TypeDef	*tx_uart = NULL,	*rx_uart = NULL,	*uart = NULL;
 	GPIO_TypeDef 	*tx_port = NULL,	*rx_port = NULL;
-	uint8_t			tx_pin = 0,	rx_pin = 0,	tx_af = 0, rx_af = 0;
+	uint8_t			tx_af = 0, rx_af = 0, tx_pin = 0, rx_pin = 0;
 	if (tx_enable) { USART_GPIO_to_args(tx, &tx_uart, &tx_af, &tx_port, &tx_pin); uart = tx_uart; }
 	if (rx_enable) { USART_GPIO_to_args(rx, &rx_uart, &rx_af, &rx_port, &rx_pin); uart = rx_uart; }
 	if (tx_enable && rx_enable && tx_uart != rx_uart) { return; }  // error if tx and rx are on different usart devices

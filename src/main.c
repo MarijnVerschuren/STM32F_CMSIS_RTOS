@@ -5,6 +5,8 @@
 #include "sys.h"
 #include "usart.h"
 #include "pwm.h"
+#include "crc.h"
+#include "i2c.h"
 
 
 #ifdef STM32F4xx
@@ -31,7 +33,8 @@ int main(void) {
 	set_SYS_CLOCK_config(sys_config, SYS_CLK_SRC_PLL, AHB_CLK_NO_DIV, APBx_CLK_DIV2, APBx_CLK_NO_DIV, 0);
 	set_SYS_FLASH_config(sys_config, FLASH_LATENCY4, 1, 1, 1);  // latency is set automatically (when need be)
 	set_SYS_tick_config(sys_config, 1, 1);
-	sys_clock_init(sys_config); free(sys_config);
+	sys_clock_init(sys_config);
+	free(sys_config);
 
 	// GPIO input / output
 	config_GPIO(LED_GPIO_PORT, LED_PIN, GPIO_output, GPIO_no_pull, GPIO_push_pull);
@@ -41,6 +44,12 @@ int main(void) {
 	// EXTI
 	config_EXTI(BTN_PIN, BTN_GPIO_PORT, 1, 1);
 	start_EXTI(BTN_PIN);
+
+	// initialize CRC
+	enable_CRC();  // polynomial: 0x4C11DB7
+	// write 1 to CR to clear
+	// write bytes to DR to add
+	// read DR for CRC
 
 	// UART input
 	io_buffer_t* uart_buf = new_buffer(1024);
@@ -56,9 +65,18 @@ int main(void) {
 	// PWM output
 	config_PWM(TIM4_CH4_B9, 100, 20000);		TIM4->CCR4 = 550;
 
+	// I2C test
+	config_I2C(I2C1_SCL_B6, I2C1_SDA_B7);
+	//uint8_t rom_write_data[3] = {0x00, 0x00, 0x5e};
+
 	// main loop
 	for(;;) {
-		USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
+		//I2C_test();
+		//I2C_write(I2C1, 50, rom_write_data, 3, 10);
+		/*TIM4->CCR4++;
+		delay_ms(25);
+		if (TIM4->CCR4 > 2500) { TIM4->CCR4 = 550; }*/
+		//USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
 	}
 }
 

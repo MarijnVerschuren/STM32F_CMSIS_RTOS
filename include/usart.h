@@ -6,6 +6,7 @@
 #define STM32F_CMSIS_USART_H
 #include "main.h"
 #include "gpio.h"
+#include "base.h"
 #include "sys.h"
 
 
@@ -62,7 +63,6 @@ USART_TypeDef* id_to_USART(dev_id_t id);
 void disable_USART(USART_TypeDef* usart);
 void fconfig_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud, USART_oversampling_t oversampling);
 void config_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud);
-
 /*!< irq */
 void start_USART_receive_irq(USART_TypeDef* usart, io_buffer_t* buffer, uint8_t fifo);
 void stop_USART_receive_irq(USART_TypeDef* usart);

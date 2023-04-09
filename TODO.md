@@ -1,5 +1,6 @@
 > # TODO
-> * implement transmit irq
+> * implement usart transmit irq
+> * add ARLO check to i2c
 >
 > * create function for other timer pins
 > * add more options to fconfig_UART
