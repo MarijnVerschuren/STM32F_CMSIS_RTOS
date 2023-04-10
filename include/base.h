@@ -32,8 +32,8 @@ typedef struct {
 typedef struct {
 	volatile void*		ptr;
 	uint32_t			size;
-	volatile uint32_t	i_index;	// write
-	volatile uint32_t	o_index;	// read
+	volatile uint32_t	i;	// write
+	volatile uint32_t	o;	// read
 } io_buffer_t;
 
 

@@ -29,8 +29,8 @@ io_buffer_t* new_buffer(uint32_t size) {
 	buf->ptr = malloc(size);
 	if (!buf->ptr) { return NULL; }	// buffer allocation error
 	buf->size = size;
-	buf->i_index = 0;
-	buf->o_index = 0;
+	buf->i = 0;
+	buf->o = 0;
 	return buf;
 }
 void free_buffer(io_buffer_t* buf) { free(buf->ptr); free(buf); }
