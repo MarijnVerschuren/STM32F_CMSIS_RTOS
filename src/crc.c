@@ -7,8 +7,8 @@
 
 void enable_CRC(void) {
 	RCC->AHB1ENR |= RCC_AHB1ENR_CRCEN;	// enable crc clock
-	CRC->CR |= 0b1u;					// reset crc
+	CRC->CR |= CRC_CR_RESET;			// reset crc
 }
 void disable_CRC(void) {
-	RCC->AHB1ENR |= RCC_AHB1ENR_CRCEN;	// enable crc clock
+	RCC->AHB1ENR &= ~RCC_AHB1ENR_CRCEN;	// disable crc clock
 }
