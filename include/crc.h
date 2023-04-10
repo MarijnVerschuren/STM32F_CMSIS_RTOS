@@ -6,7 +6,12 @@
 #define STM32F_CMSIS_CRC_H
 #include "main.h"
 
+
+
+/*!< enable / disable */
 void enable_CRC(void);
 void disable_CRC(void);
+/*!< usage */
+void reset_CRC(void);
 
 #endif //STM32F_CMSIS_CRC_H
