@@ -82,11 +82,6 @@ void config_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda) {
 }
 
 
-/*!< test */
-void I2C_test(void) {  // THIS WORKS
-	I2C_start(I2C1, 0x55 << 1, 10);
-	I2C_stop(I2C1);
-}
 /*!< input / output */
 uint32_t I2C_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer, uint32_t size, uint32_t timeout) {
 	uint64_t start = tick;
@@ -97,7 +92,7 @@ uint32_t I2C_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer,
 }
 uint32_t I2C_read(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t* buffer, uint32_t size, uint32_t timeout) {
 	uint64_t start = tick;
-	while (i2c->SR2 & I2C_SR2_BUSY) { if (tick - start > timeout) { return 0; } }  // wait until idle
+	//while (i2c->SR2 & I2C_SR2_BUSY) { if (tick - start > timeout) { return 0; } }  // wait until idle
 	if (I2C_start(i2c, (i2c_address << 1) | 0b1ul, timeout - (tick - start)))	{ return 0; }
 	uint32_t rx_size = I2C_receive(i2c, buffer, size, timeout - (tick - start));
 	I2C_stop(i2c); return rx_size;

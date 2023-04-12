@@ -46,8 +46,6 @@ typedef enum {
 /*!< init / enable / disable */
 void disable_I2C_clock(I2C_TypeDef* i2c);
 void config_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda);
-/*!< test */
-void I2C_test(void);
 /*!< input / output */
 uint32_t I2C_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint32_t I2C_read(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t* buffer, uint32_t size, uint32_t timeout);

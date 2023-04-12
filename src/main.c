@@ -67,12 +67,11 @@ int main(void) {
 
 	// I2C test
 	config_I2C(I2C1_SCL_B6, I2C1_SDA_B7);
-	//uint8_t rom_write_data[3] = {0x00, 0x00, 0x5e};
+	uint8_t rom_write_data[5] = {0x00, 0x00, 0x52, 0x12, 0x9a};
 
 	// main loop
 	for(;;) {
-		//I2C_test();
-		//I2C_write(I2C1, 50, rom_write_data, 3, 10);
+		//I2C_write(I2C1, 0x50, rom_write_data, 5, 10);
 		/*TIM4->CCR4++;
 		delay_ms(25);
 		if (TIM4->CCR4 > 2500) { TIM4->CCR4 = 550; }*/
