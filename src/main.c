@@ -7,6 +7,7 @@
 #include "pwm.h"
 #include "crc.h"
 #include "i2c.h"
+#include "rng.h"
 
 
 #ifdef STM32F4xx
@@ -19,11 +20,11 @@
 
 extern void TIM3_IRQHandler(void) {
 	TIM3->SR &= ~TIM_SR_UIF;
-	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
-	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 
 int main(void) {
@@ -55,7 +56,7 @@ int main(void) {
 	io_buffer_t* uart_buf = new_buffer(1024);
 	if (!uart_buf) { return -1; }  // allocation error
 	config_UART(USART1_TX_A9, USART1_RX_A10, 115200);
-	start_USART_receive_irq(USART1, uart_buf, 1);
+	start_USART_read_irq(USART1, uart_buf, 1);
 
 	// UART buffer polling interrupt
 	config_TIM(TIM3, 50000, 10000);  // 10s
@@ -66,16 +67,53 @@ int main(void) {
 	config_PWM(TIM4_CH4_B9, 100, 20000);		TIM4->CCR4 = 550;
 
 	// I2C test
-	config_I2C(I2C1_SCL_B6, I2C1_SDA_B7);
-	uint8_t rom_write_data[5] = {0x00, 0x00, 0x52, 0x12, 0x9a};
+	config_I2C(I2C1_SCL_B6, I2C1_SDA_B7, 0x0);
+
+	start_RNG();
+	volatile uint8_t i2c_tx_data[5] = {
+		RNG_generate(0xff),
+		RNG_generate(0xff),
+		RNG_generate(0xff),
+		RNG_generate(0xff),
+		RNG_generate(0xff)
+	};
+	volatile uint8_t i2c_rx_data[5] = {0, 0, 0, 0, 0 };
 
 	// main loop
 	for(;;) {
-		//I2C_write(I2C1, 0x50, rom_write_data, 5, 10);
-		/*TIM4->CCR4++;
-		delay_ms(25);
-		if (TIM4->CCR4 > 2500) { TIM4->CCR4 = 550; }*/
-		//USART_print(USART1, "hello USART1!?", 100);	delay_ms(333);
+		//delay_ms(RNG_generate(200));
+		I2C_master_write(I2C1, 0x40, i2c_tx_data, 5, 10);
+		//I2C_master_address(I2C1, 0x40, 10);
+
+		//I2C_slave_read(I2C1, i2c_rx_data, 5, 1000);
+		//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+
+		/* TODO: redo all I2C usage functions
+			some functions will exit without proper protocol closure
+		 	this has likely led to the line being held low by slave
+		*/  // TESTING:  TODO: fix this ^^^^ (i have tested the master and it has issues with this one)
+
+		//I2C_master_address(I2C1, 0x40, 10);  // works but both are master at the same time with this
+
+		/*
+		while (I2C1->SR2 & I2C_SR2_BUSY) {}
+		I2C1->CR1 |= I2C_CR1_PE;				// enable device
+		I2C1->CR1 |= I2C_CR1_ACK;				// enable acknowledgement generation (RX)
+		I2C1->CR1 |= I2C_CR1_START;				// generate start condition
+		while (!(  // wait until the start condition is sent
+				(I2C1->SR1 & I2C_SR1_SB) &&		// start bit detected
+				(I2C1->SR2 & I2C_SR2_MSL) &&		// master mode (set when SR1_SB is set)
+				(I2C1->SR2 & I2C_SR2_BUSY)		// data transfer over bus started
+		)) {}
+
+		I2C1->DR = 0x40 << 1;  // send the address
+		while (!(I2C1->SR1 & I2C_SR1_ADDR)) {}  // wait until the address is sent
+
+		(void)I2C1->SR2;	 // clear ADDR flag in SR1 by reading SR2 after SR1
+
+		I2C1->CR1 &= ~I2C_CR1_ACK;
+		I2C1->CR1 |= I2C_CR1_STOP;  // send stop condition
+		*/
 	}
 }
 

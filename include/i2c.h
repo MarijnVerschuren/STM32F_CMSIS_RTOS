@@ -42,16 +42,32 @@ typedef enum {
 	I2C3_SDA_B8 =		0x570918,
 } I2C_GPIO_t;
 
+typedef enum {
+	i2c_address_7bit =	0b0u,
+	i2c_address_10bit =	0b1u,
+} I2C_address_t;
+
 
 /*!< init / enable / disable */
 void disable_I2C_clock(I2C_TypeDef* i2c);
-void config_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda);
-/*!< input / output */
-uint32_t I2C_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);
-uint32_t I2C_read(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t* buffer, uint32_t size, uint32_t timeout);
-uint32_t I2C_write_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);
-uint32_t I2C_read_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, uint8_t* buffer, uint32_t size, uint32_t timeout);
-// TODO: functions inspo: https://stm32f4-discovery.net/2014/05/library-09-i2c-for-stm32f4xx/
+void fconfig_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda, uint16_t own_address, I2C_address_t address_type, uint8_t dual_address);
+void config_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda, uint8_t own_address);  // default to 7bit addressing
+void reset_I2C(I2C_TypeDef* i2c);
+void enable_I2C(I2C_TypeDef* i2c);
+void disable_I2C(I2C_TypeDef* i2c);
+/*!< master input / output */
+uint32_t I2C_master_address(I2C_TypeDef* i2c, uint8_t i2c_address, uint32_t timeout);  // return 0 if success
+uint32_t I2C_master_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+uint32_t I2C_master_read(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+uint32_t I2C_master_write_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+uint32_t I2C_master_read_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+/*!< slave input / output */
+uint32_t I2C_slave_address(I2C_TypeDef* i2c, uint8_t i2c_address, uint32_t timeout);  // return 0 if success
+uint32_t I2C_slave_write(I2C_TypeDef* i2c, const uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+uint32_t I2C_slave_read(I2C_TypeDef* i2c, uint8_t* buffer, uint32_t size, uint32_t timeout);  // return size if success
+/*!< slave input / output irq */  // TODO
+uint32_t start_I2C_slave_read_irq(I2C_TypeDef* i2c, io_buffer_t* buffer, uint8_t fifo);
+uint32_t stop_I2C_slave_read_IT(I2C_TypeDef* i2c);
 
 
 #endif //STM32F_CMSIS_I2C_H

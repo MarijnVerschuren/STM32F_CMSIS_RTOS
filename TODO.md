@@ -1,7 +1,13 @@
 > # TODO
-> * implement usart transmit irq
+> * test i2c slave mode
+> * https://kunalsalvi63.medium.com/bare-metal-i2c-driver-for-stm32f411cex-3cc600fdcc05
 > * add ARLO check to i2c
+> * add S0S90 functionality: external clock for timer and datapin for count direction
+> a: `--__--__` clk
+> b: `-__--__-` data
 >
+> * implement usart transmit irq
+> * 
 > * create function for other timer pins
 > * add more options to fconfig_UART
 > * add complementary support to PWM

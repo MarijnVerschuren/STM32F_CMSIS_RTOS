@@ -86,7 +86,7 @@ void config_UART(USART_GPIO_t tx, USART_GPIO_t rx, uint32_t baud) { fconfig_UART
 
 
 /*!< irq */
-void start_USART_receive_irq(USART_TypeDef* usart, io_buffer_t* buffer, uint8_t fifo) {
+void start_USART_read_irq(USART_TypeDef* usart, io_buffer_t* buffer, uint8_t fifo) {
 	usart->CR1 |= USART_CR1_RXNEIE;
 	uint32_t irqn;
 	USART_IRQ_IO_t* usart_buf;
@@ -97,7 +97,7 @@ void start_USART_receive_irq(USART_TypeDef* usart, io_buffer_t* buffer, uint8_t 
 	usart_buf->rx_buf = buffer;	usart_buf->rx_fifo = fifo;
 	NVIC->ISER[((irqn) >> 5UL)] = (uint32_t)(1UL << ((irqn) & 0x1FUL));  // NVIC_EnableIRQ
 }
-void stop_USART_receive_irq(USART_TypeDef* usart) { usart->CR1 &= ~USART_CR1_RXNEIE; }
+void stop_USART_read_irq(USART_TypeDef* usart) { usart->CR1 &= ~USART_CR1_RXNEIE; }
 void disable_USART_irq(USART_TypeDef* usart) {
 	uint32_t irqn;
 	if (usart == USART1) { irqn = USART1_IRQn; }

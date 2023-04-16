@@ -7,6 +7,14 @@
 
 #include "main.h"
 
+typedef struct {
+	uint32_t ID0;
+	uint32_t ID1;
+	uint32_t ID2;
+} ID;
+#define UID_BASE 0x1FFF7A10UL
+#define UID ((ID *)UID_BASE)
+
 
 typedef enum {
 	PLL_P_DIV2 = 0b00,
