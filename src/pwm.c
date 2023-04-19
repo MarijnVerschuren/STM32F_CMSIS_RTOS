@@ -4,23 +4,22 @@
 #include "pwm.h"
 
 
-
 /*!< static */
-static inline void PWM_GPIO_to_args(uint32_t pwm_pin, TIM_TypeDef** tim, uint8_t* channel, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
-	uint8_t dev_id =		(pwm_pin >> 16);
+static inline void TIM_GPIO_to_args(uint32_t tim_pin, TIM_TypeDef** tim, uint8_t* channel, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
+	uint8_t dev_id =		(tim_pin >> 16);
 	(*tim) =				id_to_dev(*((dev_id_t*)&dev_id));
-	(*channel) =			(pwm_pin >> 14) & 0x3u;
-	(*alternate_function) =	(pwm_pin >> 8) & 0xfu;
-	(*port) =				int_to_GPIO(pwm_pin >> 4);
-	(*pin) =				pwm_pin & 0xfu;
+	(*channel) =			(tim_pin >> 14) & 0x3u;
+	(*alternate_function) =	(tim_pin >> 8) & 0xfu;
+	(*port) =				int_to_GPIO(tim_pin >> 4);
+	(*pin) =				tim_pin & 0xfu;
 }
 
 
 /*!< init / enable / disable */
-void config_PWM(PWM_GPIO_t pwm_pin, uint32_t prescaler, uint32_t period) {
+void config_PWM(TIM_GPIO_t pwm_pin, uint32_t prescaler, uint32_t period) {
 	TIM_TypeDef* tim; GPIO_TypeDef* port;	// registers
 	uint8_t channel, pin, af;				// params
-	PWM_GPIO_to_args(pwm_pin, &tim, &channel, &af, &port, &pin);
+	TIM_GPIO_to_args(pwm_pin, &tim, &channel, &af, &port, &pin);
 	fconfig_GPIO(port, pin, GPIO_alt_func, GPIO_no_pull, GPIO_push_pull, GPIO_very_high_speed, af);
 	config_TIM(tim, prescaler, period);
 	(&tim->CCMR1)[channel >> 1] &=	~(0x3u << ((channel & 0b1u) << 3));	// clear register
