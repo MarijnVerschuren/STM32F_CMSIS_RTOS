@@ -63,13 +63,12 @@ uint32_t I2C_master_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* 
 uint32_t I2C_master_read(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint32_t I2C_master_write_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, const uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint32_t I2C_master_read_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_address, uint8_t* buffer, uint32_t size, uint32_t timeout);
-/*!< slave input / output */
-// following functions return processed count
+/*!< slave input / output */ /* TODO: fix / implement these
 uint32_t I2C_slave_write(I2C_TypeDef* i2c, const uint8_t* buffer, uint32_t size, uint32_t timeout);
 uint32_t I2C_slave_read(I2C_TypeDef* i2c, uint8_t* buffer, uint32_t size, uint32_t timeout);
-/*!< slave input / output irq */  // TODO
+*/ /*!< slave input / output irq */ /*
 uint32_t start_I2C_slave_read_irq(I2C_TypeDef* i2c, io_buffer_t* buffer, uint8_t fifo);
 uint32_t stop_I2C_slave_read_IT(I2C_TypeDef* i2c);
-
+*/
 
 #endif //STM32F_CMSIS_I2C_H

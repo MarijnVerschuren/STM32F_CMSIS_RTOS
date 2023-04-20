@@ -49,9 +49,6 @@ int main(void) {
 
 	// initialize CRC
 	enable_CRC();  // polynomial: 0x4C11DB7
-	// write 1 to CR to clear
-	// write bytes to DR to add
-	// read DR for CRC
 
 	// UART input
 	io_buffer_t* uart_buf = new_buffer(1024);
@@ -65,33 +62,22 @@ int main(void) {
 	start_TIM(TIM3);
 
 	// PWM output
-	config_PWM(TIM4_CH4_B9, 100, 20000);		TIM4->CCR4 = 550;
+	config_PWM(TIM4_CH4_B9, 100, 20000); TIM4->CCR4 = 550;
 
 	// RNG generator
 	start_RNG();
 
-	// I2C TODO: ...
-	// config_I2C(I2C1_SCL_B6, I2C1_SDA_B7, 0);
-
-	volatile uint8_t i2c_tx_data[5] = {
-		RNG_generate(0xff),
-		RNG_generate(0xff),
-		RNG_generate(0xff),
-		RNG_generate(0xff),
-		RNG_generate(0xff)
-	};
-	volatile uint8_t i2c_rx_data[5] = {0, 0, 0, 0, 0 };
+	// I2C
+	config_I2C(I2C1_SCL_B6, I2C1_SDA_B7, 0);
 
 	// S0S90 external counter
 	config_encoder_S0S90(TIM2_CH1_A0, TIM2_CH2_A1);
 	start_encoder_S0S90(TIM2);
 
+
 	// main loop
 	for(;;) {
-		/* TODO: fix error where slave interferes withe the SCL line!!!!! */
-		// TODO: move PWM_GPIO_t to tim.h and call it TIM_GPIO_t
-		//I2C_master_write(I2C1, 0x50, i2c_tx_data, 5, 15);
-		//I2C_slave_read(I2C1, i2c_rx_data, 5, 1000);
+		__NOP();
 	}
 }
 

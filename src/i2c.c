@@ -157,7 +157,7 @@ uint8_t I2C_master_address(I2C_TypeDef* i2c, uint8_t i2c_address, uint32_t timeo
 }
 uint32_t I2C_master_write(I2C_TypeDef* i2c, uint8_t i2c_address, const uint8_t* buffer, uint32_t size, uint32_t timeout) {
 	uint64_t start = tick;
-	if (I2C_wait_idle(i2c, timeout)) { I2C_stop_master(i2c); return 0; }
+	if (I2C_wait_idle(i2c, timeout)) { return 0; }
 	if (I2C_start_master(i2c, i2c_address << 1, timeout - (tick - start))) {
 		I2C_stop_master(i2c);
 		return 0;
@@ -203,7 +203,8 @@ uint32_t I2C_master_read_reg(I2C_TypeDef* i2c, uint8_t i2c_address, uint8_t reg_
 	return rx_size;
 }
 
-/*!< slave input / output */
+
+/*!< slave input / output */ /*
 uint32_t I2C_slave_write(I2C_TypeDef* i2c, const uint8_t* buffer, uint32_t size, uint32_t timeout) {
 	uint64_t start = tick;
 	if (I2C_start_slave(i2c, timeout - (tick - start))) { return -1; }
@@ -217,17 +218,21 @@ uint32_t I2C_slave_read(I2C_TypeDef* i2c, uint8_t* buffer, uint32_t size, uint32
 	I2C_stop_slave(i2c, timeout - (tick - start));
 	return rx_size;
 }
+*/
 
-/*!< slave input / output irq */
+
+/*!< slave input / output irq */ /*
 uint32_t start_I2C_slave_read_irq(I2C_TypeDef* i2c, io_buffer_t* buffer, uint8_t fifo) {
 	return 0;
 }
 uint32_t stop_I2C_slave_read_IT(I2C_TypeDef* i2c) {
 	return 0;
 }
+*/
 
 
-/*!< irq */
+/*!< irq */ /*
 extern void I2C1_IRQHandler(void) {
 	return;
 }
+*/
