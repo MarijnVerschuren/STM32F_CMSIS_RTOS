@@ -128,7 +128,7 @@ void fconfig_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda, uint16_t own_address, I2C_addre
 	i2c->CR1 |= I2C_CR1_ACK;
 }
 void config_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda, uint8_t own_address) {
-	fconfig_I2C(scl, sda, own_address, i2c_address_7bit, 0x00);
+	fconfig_I2C(scl, sda, own_address, I2C_ADDR_7BIT, 0x00);
 }
 void reset_I2C(I2C_TypeDef* i2c) {
 	disable_I2C(i2c);

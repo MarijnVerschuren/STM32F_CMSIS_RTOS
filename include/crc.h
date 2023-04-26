@@ -11,7 +11,7 @@
 /*!< enable / disable */
 void enable_CRC(void);
 void disable_CRC(void);
-/*!< usage */
+/*!< actions */
 void reset_CRC(void);
 
 #endif //STM32F_CMSIS_CRC_H

@@ -43,8 +43,8 @@ typedef enum {
 } I2C_GPIO_t;
 
 typedef enum {
-	i2c_address_7bit =	0b0u,
-	i2c_address_10bit =	0b1u,
+	I2C_ADDR_7BIT =		0b0u,
+	I2C_ADDR_10BIT =	0b1u,
 } I2C_address_t;
 
 
