@@ -12,14 +12,4 @@
 #include "stm32f4xx.h"
 #endif
 
-
-#define __weak __attribute__((weak))
-
-
-// TODO: I2S (maybe?)
-/*	I2SSRC: I2S clock source:
-		0: PLLI2S selected
-		1: External clock mapped on the I2S_CKIN pin used as I2S clock */
-// (config->I2S_external_clock * RCC_CFGR_I2SSRC)
-
 #endif //STM32F_MAIN_H

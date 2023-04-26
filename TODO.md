@@ -1,10 +1,10 @@
 > # TODO
 > ### EASY
 > * review and clean code
+> * window watchdog
 >
 > ### MODERATE
 > * RTOS
->
 > * implement usart transmit irq
 > * add more options to fconfig_UART
 >
@@ -19,5 +19,4 @@
 > * use the fpu: https://gitlab.com/mcturra2000/rpi/-/blob/master/stm32f411re/cmsis/12-fpu/main.c
 >
 > # DOCS
-> * what does BSRR do
 > * what is the difference between speed modes

@@ -9,6 +9,7 @@
 #include "i2c.h"
 #include "rng.h"
 #include "encoder.h"
+#include "watchdog.h"
 
 
 #ifdef STM32F4xx
@@ -74,9 +75,16 @@ int main(void) {
 	config_encoder_S0S90(TIM2_CH1_A0, TIM2_CH2_A1);
 	start_encoder_S0S90(TIM2);
 
+	// watchdog
+	config_watchdog(0, 0xfff);  // 512 ms
+	start_watchdog();
 
+	uint16_t start = tick;
 	// main loop
 	for(;;) {
+		//reset_watchdog();
+		while (tick - start < 255);
+		start = tick;
 		__NOP();
 	}
 }
