@@ -43,6 +43,10 @@ int main(void) {
 #include "exti.h"
 
 
+extern void EXTIx_IRQHandler(void) {
+	EXTI->PR = EXTI_PR_PRx;
+}
+
 int main(void) {
     config_GPIO(PORT, PIN, MODE, PULLUP, OUTPUT_TYPE);
     config_EXTI(EXTI_LINE, PORT, FALLING, RISING);
@@ -62,7 +66,7 @@ int main(void) {
 #include "encoder.h"
 
 
-void TIMx_IRQHandler(void) {
+extern void TIMx_IRQHandler(void) {
     TIM->SR &= ~TIM_SR_UIF;  // reset interupt flag
 }
 
