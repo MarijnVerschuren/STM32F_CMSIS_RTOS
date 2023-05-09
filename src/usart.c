@@ -6,11 +6,11 @@
 
 /*!< static */
 static inline uint16_t UART_division(USART_TypeDef* uart, uint32_t baud) {
-	if ((((uint32_t)uart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ return APB2_clock_frequency / baud; }
+	if ((((uint32_t)uart) ^ APB1PERIPH_BASE) >= 0x00010000UL)	{ return APB2_clock_frequency / baud; }
 	else														{ return APB1_clock_frequency / baud; }
 }
 static inline void enable_USART_clock(USART_TypeDef* usart) {
-	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
+	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR |= (0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR |= (0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
 static inline void USART_GPIO_to_args(USART_GPIO_t usart_pin, USART_TypeDef** usart, uint8_t* alternate_function, GPIO_TypeDef** port, uint8_t* pin) {
@@ -53,7 +53,7 @@ extern void USART6_IRQHandler(void) { USART_irq_handler(USART6, &usart_buf_6); }
 
 /*!< init / enable / disable */
 void disable_USART(USART_TypeDef* usart) {
-	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) > 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
+	if ((((uint32_t)usart) ^ APB1PERIPH_BASE) >= 0x00010000UL)	{ RCC->APB2ENR &= ~(0b1u << (((uint32_t)usart - APB2PERIPH_BASE) >> 10u)); }
 	else														{ RCC->APB1ENR &= ~(0b1u << (((uint32_t)usart - APB1PERIPH_BASE) >> 10u)); }
 }
 

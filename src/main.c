@@ -20,8 +20,8 @@
 #define BTN_PIN 0
 
 
-extern void TIM3_IRQHandler(void) {
-	TIM3->SR &= ~TIM_SR_UIF;
+extern void TIM1_UP_TIM10_IRQHandler(void) {
+	TIM10->SR &= ~TIM_SR_UIF;
 	//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 extern void EXTI0_IRQHandler(void) {
@@ -58,9 +58,9 @@ int main(void) {
 	start_USART_read_irq(USART1, uart_buf, 1);
 
 	// UART buffer polling interrupt
-	config_TIM(TIM3, 50000, 10000);  // 10s
-	start_TIM_update_irq(TIM3);  // TIM2_IRQHandler
-	start_TIM(TIM3);
+	config_TIM(TIM10, 1000, 20000);  // 5 Hz
+	start_TIM_update_irq(TIM10);  // TIM1_UP_TIM10_IRQHandler
+	start_TIM(TIM10);
 
 	// PWM output
 	config_PWM(TIM4_CH4_B9, 100, 20000); TIM4->CCR4 = 550;
@@ -79,8 +79,9 @@ int main(void) {
 	config_watchdog(0, 0xfff);  // 512 ms
 	start_watchdog();
 
-	uint16_t start = tick;
+
 	// main loop
+	uint16_t start = tick;
 	for(;;) {
 		//reset_watchdog();
 		while (tick - start < 255);
