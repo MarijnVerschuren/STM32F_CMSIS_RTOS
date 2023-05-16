@@ -11,6 +11,8 @@
 #include "encoder.h"
 #include "watchdog.h"
 
+#include <FreeRTOS.h>
+
 
 #ifdef STM32F4xx
 
@@ -81,12 +83,10 @@ int main(void) {
 
 
 	// main loop
-	uint16_t start = tick;
 	for(;;) {
-		//reset_watchdog();
-		while (tick - start < 255);
-		start = tick;
-		__NOP();
+		reset_watchdog();
+		GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+		delay_ms(200);
 	}
 }
 

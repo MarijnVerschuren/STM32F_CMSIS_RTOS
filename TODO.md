@@ -1,10 +1,10 @@
 > # TODO
 > ### EASY
+> * RTOS config
 > * review and clean code
 > * window watchdog
 >
 > ### MODERATE
-> * RTOS
 > * implement usart transmit irq
 > * add more options to fconfig_UART
 >
