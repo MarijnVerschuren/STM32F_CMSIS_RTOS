@@ -5,6 +5,7 @@
 #ifndef STM32F_MAIN_H
 #define STM32F_MAIN_H
 #include <malloc.h>
+#include <stdint.h>
 
 #ifdef STM32F3xx
 #include "stm32f3xx.h"

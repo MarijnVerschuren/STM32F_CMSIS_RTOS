@@ -2,7 +2,6 @@
 #include "gpio.h"	// all pins are defined here
 #include "exti.h"
 #include "tim.h"	// all timers and delays are defined here
-#include "sys.h"
 #include "usart.h"
 #include "pwm.h"
 #include "crc.h"
@@ -24,11 +23,11 @@
 
 extern void TIM1_UP_TIM10_IRQHandler(void) {
 	TIM10->SR &= ~TIM_SR_UIF;
-	//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
-	//GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 
 int main(void) {
@@ -85,8 +84,6 @@ int main(void) {
 	// main loop
 	for(;;) {
 		reset_watchdog();
-		GPIO_toggle(LED_GPIO_PORT, LED_PIN);
-		delay_ms(200);
 	}
 }
 
