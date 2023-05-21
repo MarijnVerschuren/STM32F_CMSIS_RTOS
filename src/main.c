@@ -1,4 +1,11 @@
-#include "main.h"
+// RTOS
+#include <FreeRTOSConfig.h>
+#include <FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
+#include <semphr.h>
+
+// CMSIS
 #include "gpio.h"	// all pins are defined here
 #include "exti.h"
 #include "tim.h"	// all timers and delays are defined here
@@ -10,7 +17,6 @@
 #include "encoder.h"
 #include "watchdog.h"
 
-#include <FreeRTOS.h>
 
 
 #ifdef STM32F4xx
@@ -29,6 +35,31 @@ extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
 	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
+
+uint32_t task_0_cnt = 0;
+uint32_t task_1_cnt = 0;
+
+void task_0(void* args) {
+	uint32_t delay = *((uint32_t*)args);
+	uint32_t prev = tick;
+	for (;;) {
+		if (tick - prev > delay) {
+			prev = tick;
+			task_0_cnt++;
+		}
+	}
+}
+void task_1(void* args) {
+	uint32_t delay = *((uint32_t*)args);
+	uint32_t prev = tick;
+	for (;;) {
+		if (tick - prev > delay) {
+			prev = tick;
+			task_1_cnt++;
+		}
+	}
+}
+
 
 int main(void) {
 	// sys_clock: 25Mhz / 15 * 120 / 2 = 100Mhz
@@ -78,13 +109,45 @@ int main(void) {
 
 	// watchdog
 	config_watchdog(0, 0xfff);  // 512 ms
-	start_watchdog();
+	//start_watchdog();
 
+	uint32_t delay_0 = 500;
+	uint32_t delay_1 = 1000;
 
-	// main loop
-	for(;;) {
-		reset_watchdog();
-	}
+	xTaskCreate(
+		task_0,
+		"task 0",
+		40,			// stack size in words (160 B)
+		&delay_0,	// stack parameter
+		1,			// priority
+		NULL
+	);
+	xTaskCreate(
+		task_1,
+		"task 1",
+		40,			// stack size in words (160 B)
+		&delay_1,	// stack parameter
+		2,			// priority
+		NULL
+	);
+	/*
+	TaskFunction_t pxTaskCode,
+	const char * const pcName,
+	const configSTACK_DEPTH_TYPE usStackDepth,
+	void * const pvParameters,
+	UBaseType_t uxPriority,
+	TaskHandle_t * const pxCreatedTask
+	 */
+
+	// start scheduler
+	vTaskStartScheduler();
+
+	// idle task
+	//for(;;) {
+	//	reset_watchdog();
+	//}
+
+	return 0;
 }
 
 

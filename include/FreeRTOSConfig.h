@@ -78,24 +78,24 @@
 #define INCLUDE_vTaskDelay                      1
 #define INCLUDE_xTaskGetSchedulerState          1
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
-#define INCLUDE_uxTaskGetStackHighWaterMark     0  // 1
-#define INCLUDE_uxTaskGetStackHighWaterMark2    0  // ?
+#define INCLUDE_uxTaskGetStackHighWaterMark     1
+#define INCLUDE_uxTaskGetStackHighWaterMark2    1
 #define INCLUDE_xTaskGetIdleTaskHandle          0
-#define INCLUDE_eTaskGetState                   0  // 1
+#define INCLUDE_eTaskGetState                   1
 #define INCLUDE_xEventGroupSetBitFromISR        1
-#define INCLUDE_xTimerPendFunctionCall          0  // 1
-#define INCLUDE_xQueueGetMutexHolder			0  // 1
+#define INCLUDE_xTimerPendFunctionCall          1
+#define INCLUDE_xQueueGetMutexHolder			1
 #define INCLUDE_xTaskAbortDelay                 0
 #define INCLUDE_xTaskGetHandle                  0
 #define INCLUDE_xTaskResumeFromISR              1
 
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION             1
+#define configSUPPORT_STATIC_ALLOCATION             0 // 1 -> error
 #define configSUPPORT_DYNAMIC_ALLOCATION            1
 #define configTOTAL_HEAP_SIZE                       49152  // 48 Kib
-#define configAPPLICATION_ALLOCATED_HEAP            1
-#define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP   1
+#define configAPPLICATION_ALLOCATED_HEAP            0 // 1 -> error
+#define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP   0 // 1 -> error
 
 
 /* Hook function related definitions. */
@@ -109,12 +109,12 @@
 
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           0
-#define configUSE_TRACE_FACILITY                0  // 1
-#define configUSE_STATS_FORMATTING_FUNCTIONS    0
+#define configUSE_TRACE_FACILITY                1
+#define configUSE_STATS_FORMATTING_FUNCTIONS    1
 
 
 /* Define to trap errors during development. */
-#define configASSERT(x) if(!(x)) vAssertCalled(__FILE__, __LINE__)
+#define configASSERT(x) if(!(x)) for (;;);
 
 // #define vPortSVCHandler    SVC_Handler
 // #define xPortPendSVHandler PendSV_Handler
