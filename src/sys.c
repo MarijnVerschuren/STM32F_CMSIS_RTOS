@@ -15,8 +15,10 @@ uint32_t SYS_clock_frequency = 16000000;
 
 volatile uint64_t tick = 0;
 
+
 /*!< static variables */
 static sys_tick_t tick_func = NULL;
+
 
 /*!< interrupts */
 void SysTick_Handler(void) { tick++; if (tick_func) { tick_func(); } }
@@ -259,8 +261,8 @@ void sys_clock_init(SYS_CLK_Config_t* config) {
 	SysTick->LOAD = (AHB_clock_frequency / 8000) - 1;						/* set reload register */
 	SysTick->VAL  = 0;														/* load counter value  */
 	SysTick->CTRL = (														/* start SysTick timer */
-		(SysTick_CTRL_ENABLE_Msk * config->SYS_tick_enable)				|
-		(SysTick_CTRL_TICKINT_Msk * config->SYS_tick_interrupt_enable)
+			(SysTick_CTRL_ENABLE_Msk * config->SYS_tick_enable)				|
+			(SysTick_CTRL_TICKINT_Msk * config->SYS_tick_interrupt_enable)
 	);
 	// set IRQ priority
 	SCB->SHP[(SysTick_IRQn & 0xFUL) - 4UL] = ((((1UL << __NVIC_PRIO_BITS) - 1UL) << (8U - __NVIC_PRIO_BITS)) & 0xFFUL);

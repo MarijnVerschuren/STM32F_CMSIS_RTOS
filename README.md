@@ -1,6 +1,7 @@
-# STM32F_CMSIS
-CMSIS HAL library for STM32F4
+# STM32F_CMSIS_RTOS
+RTOS extended CMSIS HAL library for STM32F4
 >## Features
+>* RTOS
 >* GPIO
 >* EXTI
 >* TIM
@@ -15,6 +16,38 @@ CMSIS HAL library for STM32F4
 >* UUID
 >* * RNG
 >* WATCHDOG
+
+# RTOS
+```C
+#include <FreeRTOSConfig.h>
+#include <FreeRTOS.h>
+#include <task.h>
+
+void idle(void* memory_pool) {
+	for (;;) {
+	    // idle task
+	}
+}
+
+int main(void) {
+    if (xTaskCreate(
+		FUNC_PTR,
+		TASK_NAME,
+		STACK_SIZE,
+		STACK_PARAMETER,
+		TASK_PRIORITY,
+		TASK_HANDLE
+	) != pdPASS) { for(;;); }
+	// FUNC_PTR:        function pointer (`idle` for example)
+	// TASK_NAME:       task name ("idle" for example)
+	// STACK_SIZE:      file stack size in words (32 bits)
+	// STACK_PARAMETER: pointer to a usable memory block (like a memory pool)
+	// TASK_PRIORITY:   task priority (high has priority)
+	// TASK_HANDLE:     pointer return value for task handle
+	vTaskStartScheduler();  // run all tasks (`main` is halted here)
+	// the stack that once belonged to `main` is unallocated after this point
+}
+```
 
 # GPIO
 ```C
