@@ -103,7 +103,6 @@ void disable_I2C_clock(I2C_TypeDef* i2c) {
 }
 void fconfig_I2C(I2C_GPIO_t scl, I2C_GPIO_t sda, uint16_t own_address, I2C_address_t address_type, uint8_t dual_address) {
 	uint8_t freq = APB1_clock_frequency / 1000000ul;
-	if ((((double)APB1_clock_frequency) / 1000000ul) - freq > 0.0) { freq++; }
 	if (freq < 2 || scl == I2C_PIN_DISABLE || sda == I2C_PIN_DISABLE) { return; }
 	I2C_TypeDef		*scl_i2c =	NULL,	*sda_i2c =	NULL,	*i2c = NULL;
 	GPIO_TypeDef	*scl_port =	NULL,	*sda_port =	NULL;

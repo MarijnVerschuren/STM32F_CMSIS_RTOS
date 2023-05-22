@@ -15,6 +15,7 @@ typedef struct {
 #define UID_BASE 0x1FFF7A10UL
 #define UID ((ID *)UID_BASE)
 
+typedef void(*sys_tick_t)(void);
 
 typedef enum {
 	PLL_P_DIV2 = 0b00,
@@ -151,7 +152,7 @@ void set_SYS_PLL_config(SYS_CLK_Config_t* config, uint8_t M, uint16_t N, PLL_P_t
 void set_SYS_FLASH_config(SYS_CLK_Config_t* config, FLASH_LATENCY_t latency, uint8_t prefetch, uint8_t enable_icache, uint8_t enable_dcache);
 void set_SYS_CLOCK_config(SYS_CLK_Config_t* config, SYS_CLK_Source_t SYS_src, AHB_CLK_Prescaler_t AHB_prescaler, APBx_CLK_Prescaler_t APB1_prescaler, APBx_CLK_Prescaler_t APB2_prescaler, uint8_t RTC_prescaler);
 void set_SYS_MCO_config(SYS_CLK_Config_t* config, MCO1_CLK_Source_t MCO1_src, MCOx_CLK_Prescaler_t MCO1_prescaler, MCO2_CLK_Source_t MCO2_src, MCOx_CLK_Prescaler_t MCO2_prescaler);
-void set_SYS_tick_config(SYS_CLK_Config_t* config, uint8_t enable, uint8_t enable_irq);
+void set_SYS_tick_config(SYS_CLK_Config_t* config, uint8_t enable, uint8_t enable_irq, sys_tick_t tick_handler);
 void set_SYS_power_config(SYS_CLK_Config_t* config, SYS_Power_t power);
 void sys_clock_init(SYS_CLK_Config_t* config);	// the config given might change when a config contradiction was solved
 

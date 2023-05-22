@@ -4,4 +4,3 @@ cmake-build-*/
 CMakeLists.txt
 .idea
 .vscode
-RTOS

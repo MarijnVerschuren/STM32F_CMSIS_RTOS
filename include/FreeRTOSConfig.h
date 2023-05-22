@@ -3,6 +3,7 @@
 //
 #ifndef STM32F_CMSIS_FREERTOSCONFIG_H
 #define STM32F_CMSIS_FREERTOSCONFIG_H
+#define RTOS
 
 #include "main.h"	// stm32 cmsis header
 #include "sys.h" 	// stm32 system (SYS_clock_frequency)
@@ -116,9 +117,9 @@
 /* Define to trap errors during development. */
 #define configASSERT(x) if(!(x)) for (;;);
 
-// #define vPortSVCHandler    SVC_Handler
-// #define xPortPendSVHandler PendSV_Handler
-// #define xPortSysTickHandler SysTick_Handler
+#define vPortSVCHandler		SVC_Handler
+#define xPortPendSVHandler	PendSV_Handler
+#define xPortSysTickHandler	RTOS_tick_handler
 
 /* FreeRTOS MPU specific definitions. */
 #define configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 0

@@ -27,6 +27,8 @@
 #define BTN_PIN 0
 
 
+extern void RTOS_tick_handler(void);
+
 extern void TIM1_UP_TIM10_IRQHandler(void) {
 	TIM10->SR &= ~TIM_SR_UIF;
 	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
@@ -62,12 +64,13 @@ void task_1(void* args) {
 
 
 int main(void) {
+	/* CMSIS */
 	// sys_clock: 25Mhz / 15 * 120 / 2 = 100Mhz
 	SYS_CLK_Config_t* sys_config = new_SYS_CLK_config();
 	set_SYS_PLL_config(sys_config, 15, 120, PLL_P_DIV2, 0, PLL_SRC_HSE);
 	set_SYS_CLOCK_config(sys_config, SYS_CLK_SRC_PLL, AHB_CLK_NO_DIV, APBx_CLK_DIV2, APBx_CLK_NO_DIV, 0);
 	set_SYS_FLASH_config(sys_config, FLASH_LATENCY4, 1, 1, 1);  // latency is set automatically (when need be)
-	set_SYS_tick_config(sys_config, 1, 1);
+	set_SYS_tick_config(sys_config, 1, 1, RTOS_tick_handler);
 	sys_clock_init(sys_config);
 	free(sys_config);
 
@@ -111,6 +114,7 @@ int main(void) {
 	config_watchdog(0, 0xfff);  // 512 ms
 	//start_watchdog();
 
+	/* RTOS */
 	uint32_t delay_0 = 500;
 	uint32_t delay_1 = 1000;
 
