@@ -27,38 +27,49 @@
 #define BTN_PIN 0
 
 
-extern void RTOS_tick_handler(void);
-
+/* CMSIS */
 extern void TIM1_UP_TIM10_IRQHandler(void) {
 	TIM10->SR &= ~TIM_SR_UIF;
-	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	// GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 extern void EXTI0_IRQHandler(void) {
 	EXTI->PR = EXTI_PR_PR0;
-	GPIO_toggle(LED_GPIO_PORT, LED_PIN);
+	// GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 }
 
-uint32_t task_0_cnt = 0;
-uint32_t task_1_cnt = 0;
 
-void task_0(void* args) {
-	uint32_t delay = *((uint32_t*)args);
+/* RTOS */
+extern void RTOS_tick_handler(void);
+void vApplicationMallocFailedHook(void) {
+	return;
+}
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
+	return;
+}
+
+uint32_t idle_cnt = 0;
+uint32_t task_cnt = 0;
+
+void idle(void* args) {
 	uint32_t prev = tick;
 	for (;;) {
-		if (tick - prev > delay) {
+		if (tick - prev > 1000) {
 			prev = tick;
-			task_0_cnt++;
+			idle_cnt++;
+			GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 		}
+		taskYIELD();
 	}
 }
-void task_1(void* args) {
-	uint32_t delay = *((uint32_t*)args);
-	uint32_t prev = tick;
+void task(void* args) {
+	uint64_t prev = tick;
 	for (;;) {
-		if (tick - prev > delay) {
+		if (tick - prev > 100) {
 			prev = tick;
-			task_1_cnt++;
+			task_cnt++;
+			GPIO_toggle(LED_GPIO_PORT, LED_PIN);
 		}
+		taskYIELD();
 	}
 }
 
@@ -115,25 +126,27 @@ int main(void) {
 	//start_watchdog();
 
 	/* RTOS */
-	uint32_t delay_0 = 500;
-	uint32_t delay_1 = 1000;
+	if (xTaskCreate(
+		idle,
+		"task idle",
+		40,			// stack size in words (160 B)
+		NULL,		// stack parameter
+		(tskIDLE_PRIORITY | portPRIVILEGE_BIT),
+		NULL
+	) != pdPASS) {
+		__NOP();
+	}
 
-	xTaskCreate(
-		task_0,
-		"task 0",
+	if (xTaskCreate(
+		task,
+		"task",
 		40,			// stack size in words (160 B)
-		&delay_0,	// stack parameter
-		1,			// priority
+		NULL,		// stack parameter
+		(tskIDLE_PRIORITY | portPRIVILEGE_BIT),
 		NULL
-	);
-	xTaskCreate(
-		task_1,
-		"task 1",
-		40,			// stack size in words (160 B)
-		&delay_1,	// stack parameter
-		2,			// priority
-		NULL
-	);
+	) != pdPASS) {
+		__NOP();
+	}
 	/*
 	TaskFunction_t pxTaskCode,
 	const char * const pcName,
@@ -144,7 +157,9 @@ int main(void) {
 	 */
 
 	// start scheduler
+	//xPortStartScheduler();
 	vTaskStartScheduler();
+
 
 	// idle task
 	//for(;;) {
